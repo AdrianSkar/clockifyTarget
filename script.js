@@ -1,8 +1,8 @@
-import { creds } from './creds.js';
+import { creds } from './creds.js'; // Credentials for the api
 
 var myList = document.querySelector('ul');
 
-/// Dates:
+/// Dates to pass on to the request (start and end as ISO strings):
 
 let curr = new Date(); //current date
 // calculate the first day of the week: https://stackoverflow.com/questions/5210376/how-to-get-first-and-last-day-of-the-week-in-javascript/26922029
@@ -14,6 +14,7 @@ let start = (new Date(curr.getFullYear(), curr.getMonth(), startDay.getDate(), 0
 
 let end = new Date();
 end = end.toISOString();
+
 ///___________________________________________________________________________
 
 // Time conversion functions
@@ -21,7 +22,7 @@ let durMinutes = val => Math.round(val / 60);
 let durHours = val => (val / 3600).toFixed(2);
 let getId = val => document.getElementById(val);
 
-//Variables holding fetched data and target times
+// Variables holding fetched data and target times
 let data, ej = 600, w = 600, pract = 1104, lb = 48, p = 288, eng = 360, lbt = 1200;
 fetch(
 	`https://reports.api.clockify.me/v1/workspaces/${creds.workspace}/reports/summary`, {
@@ -56,7 +57,7 @@ fetch(
 		return response.json();
 	})
 	.then(function (json) {
-		console.log('ok:', json);
+		// console.log('ok:', json);
 		data = json;
 
 		// Redefine main target values according to Lbt project if present (hardcoded lbDur)
@@ -69,15 +70,14 @@ fetch(
 			eng = Math.round((2400 - lbDur) * 0.15);
 		}
 
-		//loop through projects
+		// Loop through projects
 		for (const value in data.groupOne) {
 			if (data.groupOne[value].name.includes('Ej')) {// Process Ej project
 				let ejTR = getId('ej');
 				let duration = data.groupOne[value].duration;
 				let time = durMinutes(duration);
 
-
-				// to do: append children instead of innerHTML (performance)
+				// todo: append children instead of innerHTML (performance)
 
 				ejTR.innerHTML += `<td>${time}\'</td>`;
 				ejTR.innerHTML += `<td>${ej}\'</td>`;
@@ -89,7 +89,7 @@ fetch(
 				let duration = data.groupOne[value].duration;
 				let time = durMinutes(duration);
 
-				// to do: append children instead of innerHTML (performance)
+				// todo: append children instead of innerHTML (performance)
 
 				lbTR.innerHTML += `<td>${time}\'</td>`;
 				lbTR.innerHTML += `<td>${lbt}\'</td>`;
@@ -100,18 +100,15 @@ fetch(
 				//output tasknames, and duration into a list
 				let tasks = data.groupOne[value].children;
 
-				let mainTR = getId('main');
-
 				for (let task of tasks) {
 					let duration = data.groupOne[value].duration;
 					let time = durMinutes(task.duration);
-
-					//compare to target
 					let currEntry = task.name; //entry name
+
 					let calc;
 					switch (currEntry) {
 						case 'w':
-							calc = w - time;
+							calc = w - time; //compare to target
 							main.parentElement.innerHTML += `<tr id="w">`;
 							getId('w').innerHTML += `<td>${currEntry}</td>`;
 							getId('w').innerHTML += `<td>${time}\'</td>`;
@@ -164,45 +161,36 @@ fetch(
 			}
 
 		}
-		//________________________________________________________________________
-
-		/// to do: append children instead of innerHTML (performance)
-
 
 		//________________________________________________________________________
 
 		//process total count
 		let total = durHours(data.totals[0].totalTime);
-		let totalTar = 60;
+		let totalTar = 50;
 		let listItem = document.createElement('li');
 
 		listItem.innerHTML += `Total: ${total}, target: ${totalTar}, left: ${(totalTar - total).toFixed(2)}`;
 		myList.appendChild(listItem);
-		//________________________________________________________________________
+		//__________________________________________________________________________
 
-		/// Colorize background of lastchild:
-
+		/// Colorize background of progress (lastchild):
 
 		let coll = document.querySelectorAll('tr');
 		for (let tr of coll) {
-			// console.log(tr);
 			let lastChild = tr.lastChild;
 			let num = parseInt(lastChild.textContent);
 
 			if (Number.isInteger(num)) {
-				console.log(num);
-				// console.log(parseInt(lastChild.textContent));
+
 				if (num >= 0) {
 					lastChild.style.color = 'red';
 				}
 				else { lastChild.style.color = 'green'; }
+
 			}
-			// lastChild.style.color = 'red';
-			// console.log(lastChild);
-			// coll[1].lastChild.style.color = 'red';
 		}
 
-		//________________________________________________________________________
+		//__________________________________________________________________________
 
 	})
 	.catch(function (error) {
