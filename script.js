@@ -116,7 +116,7 @@ fetch(
 						case 'w':
 							calc = w - time; //compare to target
 							main.parentElement.innerHTML += `<tr id="w">`;
-							getId('w').innerHTML += `<td>${currEntry}</td>`;
+							getId('w').innerHTML += `<td class="name">${currEntry}</td>`;
 							getId('w').innerHTML += `<td>${time}\'</td>`;
 							getId('w').innerHTML += `<td>${w}\'</td>`;
 							getId('w').innerHTML += `<td>${w - time}\'</td>`;
@@ -125,7 +125,7 @@ fetch(
 						case "pract":
 							calc = pract - time;
 							main.parentElement.innerHTML += `<tr id="pract">`;
-							getId('pract').innerHTML += `<td>${currEntry}</td>`;
+							getId('pract').innerHTML += `<td class="name">${currEntry}</td>`;
 							getId('pract').innerHTML += `<td>${time}\'</td>`;
 							getId('pract').innerHTML += `<td>${pract}\'  (1440)</td>`;
 							getId('pract').innerHTML += `<td>${pract - time}\'</td>`;
@@ -134,7 +134,7 @@ fetch(
 						case 'lb':
 							calc = lb - time;
 							main.parentElement.innerHTML += `<tr id="lb">`;
-							getId('lb').innerHTML += `<td>${currEntry}</td>`;
+							getId('lb').innerHTML += `<td class="name">${currEntry}</td>`;
 							getId('lb').innerHTML += `<td>${time}\'</td>`;
 							getId('lb').innerHTML += `<td>${lb}\'</td>`;
 							getId('lb').innerHTML += `<td>${lb - time}\'</td>`;
@@ -143,7 +143,7 @@ fetch(
 						case 'p':
 							calc = p - time;
 							main.parentElement.innerHTML += `<tr id="p">`;
-							getId('p').innerHTML += `<td>${currEntry}</td>`;
+							getId('p').innerHTML += `<td class="name">${currEntry}</td>`;
 							getId('p').innerHTML += `<td>${time}\'</td>`;
 							getId('p').innerHTML += `<td>${p}\'</td>`;
 							getId('p').innerHTML += `<td>${p - time}\'</td>`;
@@ -152,7 +152,7 @@ fetch(
 						case 'eng':
 							calc = eng - time;
 							main.parentElement.innerHTML += `<tr id="eng">`;
-							getId('eng').innerHTML += `<td>${currEntry}</td>`;
+							getId('eng').innerHTML += `<td class="name">${currEntry}</td>`;
 							getId('eng').innerHTML += `<td>${time}\'</td>`;
 							getId('eng').innerHTML += `<td>${eng}\'</td>`;
 							getId('eng').innerHTML += `<td>${eng - time}\'</td>`;
@@ -194,9 +194,6 @@ fetch(
 				else { lastChild.style.color = 'green'; }
 
 			}
-			// lastChild.style.color = 'red';
-			// console.log(lastChild);
-			// coll[1].lastChild.style.color = 'red';
 		}
 
 		//____________________________________________________________________________
