@@ -4,16 +4,22 @@ var myList = document.querySelector('ul');
 
 /// Dates to pass on to the request (start and end as ISO strings):
 
-let curr = new Date(); //current date
-// calculate the first day of the week: https://stackoverflow.com/questions/5210376/how-to-get-first-and-last-day-of-the-week-in-javascript/26922029
-let firstDayWeek = curr.getDate() - (curr.getDay() ? curr.getDay() + 1 : 7);
-let startDay = new Date(curr.setDate(firstDayWeek));
+// let today = new Date();
 
-// set start to 00:00:00 of the first day of the week
-let start = (new Date(curr.getFullYear(), curr.getMonth(), startDay.getDate(), 0, 0, 0)).toISOString();
+let getMonday = () => {
+	const d = new Date(),
+		day = d.getDay();
+	// calculate the day to set as monday (0)
+	const diff = d.getDate() - day + (day === 0 ? -6 : 1); //adjust for sundays
+	console.log(day, diff);
+	return new Date(d.setDate(diff));
+};
 
-let end = new Date();
-end = end.toISOString();
+let monday = getMonday();
+
+let start = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate(), 0, 0, 0).toISOString();
+
+let end = new Date().toISOString();
 
 ///___________________________________________________________________________
 
