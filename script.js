@@ -6,7 +6,7 @@ var myList = document.querySelector('ul');
 
 let curr = new Date(); //current date
 // calculate the first day of the week: https://stackoverflow.com/questions/5210376/how-to-get-first-and-last-day-of-the-week-in-javascript/26922029
-let firstDayWeek = curr.getDate() - curr.getDay() + 1;
+let firstDayWeek = curr.getDate() - (curr.getDay() ? curr.getDay() + 1 : 7);
 let startDay = new Date(curr.setDate(firstDayWeek));
 
 // set start to 00:00:00 of the first day of the week
@@ -188,9 +188,12 @@ fetch(
 				else { lastChild.style.color = 'green'; }
 
 			}
+			// lastChild.style.color = 'red';
+			// console.log(lastChild);
+			// coll[1].lastChild.style.color = 'red';
 		}
 
-		//__________________________________________________________________________
+		//____________________________________________________________________________
 
 	})
 	.catch(function (error) {
