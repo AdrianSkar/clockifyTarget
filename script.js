@@ -1,4 +1,4 @@
-import { creds } from './creds.js'; // Credentials for the api
+import { creds, targets } from './creds.js'; // Credentials for the api
 
 var myList = document.querySelector('ul');
 
@@ -28,8 +28,8 @@ let durMinutes = val => Math.round(val / 60);
 let durHours = val => (val / 3600).toFixed(2);
 let getId = val => document.getElementById(val);
 
-// Variables holding fetched data and target times
-let data, ej = 600, w = 600, pract = 1104, lb = 48, p = 288, eng = 360, lbt = 1200;
+// Variables holding fetched data and default target times
+let data, ej = targets.ej, w = targets.w.default, pract = targets.pract.default, lb = targets.lb.default, p = targets.p.default, eng = targets.eng.default, lbt = targets.lbt;
 fetch(
 	`https://reports.api.clockify.me/v1/workspaces/${creds.workspace}/reports/summary`, {
 	method: 'POST',
@@ -66,14 +66,15 @@ fetch(
 		// console.log('ok:', json);
 		data = json;
 
-		// Redefine main target values according to Lbt project if present (hardcoded lbDur)
-		let lbDur = durMinutes(data.groupOne[1].duration);
+		// Redefine main target values according to defined ratios and to Lbt project if present (hardcoded lbDur)
+		let lbDur = durMinutes(data.groupOne[1].duration); // duration in mins of lbt project
 		if (lbDur > 1) {
-			w = Math.round((2400 - lbDur) * 0.25);
-			pract = Math.round((2400 - lbDur) * 0.46);
-			lb = Math.round((2400 - lbDur) * 0.02);
-			p = Math.round((2400 - lbDur) * 0.12);
-			eng = Math.round((2400 - lbDur) * 0.15);
+			let ww = targets.workweek, entry = (val => targets[val].ratio);
+			w = Math.round((ww - lbDur) * entry('w'));
+			pract = Math.round((ww - lbDur) * entry('pract'));
+			lb = Math.round((ww - lbDur) * entry('lb'));
+			p = Math.round((ww - lbDur) * entry('p'));
+			eng = Math.round((ww - lbDur) * entry('eng'));
 		}
 
 		// Loop through projects
@@ -103,7 +104,7 @@ fetch(
 			}
 			else {// Process main project tasks
 
-				//output tasknames, and duration into a list
+				//output task names, and duration into a list
 				let tasks = data.groupOne[value].children;
 
 				for (let task of tasks) {
