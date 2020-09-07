@@ -11,15 +11,15 @@ let getMonday = () => {
 		day = d.getDay();
 	// calculate the day to set as monday (0)
 	const diff = d.getDate() - day + (day === 0 ? -6 : 1); //adjust for sundays
-	console.log(day, diff);
 	return new Date(d.setDate(diff));
 };
 
 let monday = getMonday();
 
-let start = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate(), 0, 0, 0).toISOString();
+let start = new Date(Date.UTC(monday.getFullYear(), monday.getMonth(), monday.getDate(), 0, 0, 0)).toISOString(); // Mon, 00:00:00 (UTC/ISO)
 
-let end = new Date().toISOString();
+let today = new Date();
+let end = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)).toISOString(); // Today, 23:59:59 (UTC/ISO)
 
 ///___________________________________________________________________________
 
