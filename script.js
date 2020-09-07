@@ -173,11 +173,19 @@ fetch(
 
 		//process total count
 		let total = durHours(data.totals[0].totalTime);
-		let totalTar = 50;
+		let totalTar = targets.targetHours;
 		let listItem = document.createElement('li');
+		let left = `<span id="totalLeft">${(totalTar - total).toFixed(2)}</span>`;
 
-		listItem.innerHTML += `Total: ${total}, target: ${totalTar}, left: ${(totalTar - total).toFixed(2)}`;
+		listItem.innerHTML += `Total: ${total} | Target: ${totalTar}-${totalTar + 10} | Left: ${left}`;
+
+		// listItem.innerHTML += `Total: ${total} | Target: ${totalTar} (${totalTar + 10}) | Left: ${(totalTar - total).toFixed(2)}`;
+
 		myList.appendChild(listItem);
+
+		let totalLeft = document.getElementById('totalLeft');
+		totalLeft.style.color = (totalTar - total > 1) ? targets.pendingColor : targets.doneColor;
+
 		//__________________________________________________________________________
 
 		/// Colorize background of progress (lastchild):
@@ -187,12 +195,12 @@ fetch(
 			let lastChild = tr.lastChild;
 			let num = parseInt(lastChild.textContent);
 
-			if (Number.isInteger(num)) {
+			if (Number.isInteger(num)) {// If lastChild is a field where there's a number and not a table header or text
 
 				if (num >= 0) {
-					lastChild.style.color = 'red';
+					lastChild.style.color = targets.pendingColor;
 				}
-				else { lastChild.style.color = 'green'; }
+				else { lastChild.style.color = targets.doneColor; }
 
 			}
 		}
