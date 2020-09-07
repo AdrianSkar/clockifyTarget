@@ -66,7 +66,7 @@ fetch(
 		// console.log('ok:', json);
 		data = json;
 
-		// Redefine main target values according to defined ratios and to Lbt project if present (hardcoded lbDur)
+		/// Redefine main target values according to defined ratios and to Lbt project if present (hardcoded lbDur)
 		let lbDur = durMinutes(data.groupOne[1].duration); // duration in mins of lbt project
 		if (lbDur > 1) {
 			let ww = targets.workweek, entry = (val => targets[val].ratio);
@@ -77,40 +77,49 @@ fetch(
 			eng = Math.round((ww - lbDur) * entry('eng'));
 		}
 
-		// Loop through projects
+		/// Add color depending on results:
+		let colorize = function (val) {
+			return (val >= 0) ? targets.pendingColor : targets.doneColor;
+		};
+
+		/// Loop through projects
 		for (const value in data.groupOne) {
+			let calc, content;
 			if (data.groupOne[value].name.includes('Ej')) {// Process Ej project
 				let ejTR = getId('ej');
 				let frag = document.createDocumentFragment();
 
 				let duration = data.groupOne[value].duration;
 				let time = durMinutes(duration);
+				calc = ej - time;
 
-				let content = [`${time}`, `${ej}\'`, `${ej - time}`];
+				content = [`${time}`, `${ej}\'`, `${calc}`];
 				for (let i = 0, y = content.length; i < y; i++) {
 					let td = document.createElement('td');
 					td.innerHTML = content[i];
 					frag.appendChild(td);
 				}
-
 				ejTR.appendChild(frag);
+
+				ejTR.lastChild.style.color = colorize((calc));
 			}
 			else if (data.groupOne[value].name.includes('Lb')) {// Process Lbt project
-
 				let lbTR = getId('lbt');
 				let frag = document.createDocumentFragment();
 
 				let duration = data.groupOne[value].duration;
 				let time = durMinutes(duration);
+				calc = lbt - time;
 
-				let content = [`${time}`, `${lbt}\'`, `${lbt - time}`];
+				content = [`${time}`, `${lbt}\'`, `${calc}`];
 				for (let x = 0, y = content.length; x < y; x++) {
 					let td = document.createElement("td");
 					td.innerHTML = content[x];
 					frag.appendChild(td);
 				}
-
 				lbTR.appendChild(frag);
+
+				lbTR.lastChild.style.color = colorize((calc));
 			}
 			else {// Process main project tasks
 
@@ -126,7 +135,7 @@ fetch(
 					let frag = document.createDocumentFragment();
 					let tr = document.createElement('tr');
 
-					let calc, content;
+					let content;
 					switch (task.name) {
 						case 'w':
 							calc = w - time; //compare to target
@@ -139,6 +148,8 @@ fetch(
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
+							tr.lastChild.style.color = colorize((calc));
+
 							frag.appendChild(tr);
 							break;
 
@@ -154,6 +165,8 @@ fetch(
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
+							tr.lastChild.style.color = colorize((calc));
+
 							frag.appendChild(tr);
 							break;
 
@@ -168,9 +181,7 @@ fetch(
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
-							// tr.lastChild.style.color = 'green';
-
-							// tr.lastChild.style.color = colorize((calc));
+							tr.lastChild.style.color = colorize((calc));
 
 							frag.appendChild(tr);
 
@@ -186,6 +197,8 @@ fetch(
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
+							tr.lastChild.style.color = colorize((calc));
+
 							frag.appendChild(tr);
 
 							break;
@@ -200,6 +213,8 @@ fetch(
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
+							tr.lastChild.style.color = colorize((calc));
+
 							frag.appendChild(tr);
 
 							break;
@@ -231,25 +246,6 @@ fetch(
 
 		let totalLeft = document.getElementById('totalLeft');
 		totalLeft.style.color = (totalTar - total > 1) ? targets.pendingColor : targets.doneColor;
-
-		//__________________________________________________________________________
-
-		/// Colorize background of progress (lastchild):
-
-		let coll = document.querySelectorAll('tr');
-		for (let tr of coll) {
-			let lastChild = tr.lastChild;
-			let num = parseInt(lastChild.textContent);
-
-			if (Number.isInteger(num)) {// If lastChild is a field where there's a number and not a table header or text
-
-				if (num >= 0) {
-					lastChild.style.color = targets.pendingColor;
-				}
-				else { lastChild.style.color = targets.doneColor; }
-
-			}
-		}
 
 		//__________________________________________________________________________
 
