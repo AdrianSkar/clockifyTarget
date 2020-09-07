@@ -130,7 +130,7 @@ fetch(
 					switch (task.name) {
 						case 'w':
 							calc = w - time; //compare to target
-							content = [task.name, `${time}`, `${w}`, `${w - time}`];
+							content = [task.name, `${time}`, `${w}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
 
@@ -144,9 +144,10 @@ fetch(
 
 						case "pract":
 							calc = pract - time;
-							content = [task.name, `${time}`, `${pract}`, `${pract - time}`];
+							content = [task.name + '<sup>r</sup>', `${time}`, `${pract}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
+							tr.setAttribute('title', `t + r: ${pract + targets.pract.recovery}`);
 
 							for (let i = 0, y = content.length; i < y; i++) {
 								let td = document.createElement('td');
@@ -158,7 +159,7 @@ fetch(
 
 						case 'lb':
 							calc = lb - time;
-							content = [task.name, `${time}`, `${lb}`, `${lb - time}`];
+							content = [task.name, `${time}`, `${lb}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
 
@@ -167,12 +168,16 @@ fetch(
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
+							// tr.lastChild.style.color = 'green';
+
+							// tr.lastChild.style.color = colorize((calc));
+
 							frag.appendChild(tr);
 
 							break;
 						case 'p':
 							calc = p - time;
-							content = [task.name, `${time}`, `${p}`, `${p - time}`];
+							content = [task.name, `${time}`, `${p}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
 
@@ -186,7 +191,7 @@ fetch(
 							break;
 						case 'eng':
 							calc = eng - time;
-							content = [task.name, `${time}`, `${eng}`, `${eng - time}`];
+							content = [task.name, `${time}`, `${eng}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
 
@@ -246,7 +251,7 @@ fetch(
 			}
 		}
 
-		//____________________________________________________________________________
+		//__________________________________________________________________________
 
 	})
 	.catch(function (error) {
