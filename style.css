@@ -15,6 +15,17 @@ td {
 	border: 1px solid gray;
 }
 
-td:not(.name) {
+/* 
+Since pseudo-elements are not simple selectors, they are not valid arguments
+https://developer.mozilla.org/en-US/docs/Web/CSS/:not
+td:not(.named :first-child) { 
 	text-align: right;
+} */
+
+td {
+	text-align: right;
+}
+
+.named :first-child {
+	text-align: left;
 }

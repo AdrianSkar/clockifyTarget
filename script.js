@@ -81,26 +81,36 @@ fetch(
 		for (const value in data.groupOne) {
 			if (data.groupOne[value].name.includes('Ej')) {// Process Ej project
 				let ejTR = getId('ej');
+				let frag = document.createDocumentFragment();
+
 				let duration = data.groupOne[value].duration;
 				let time = durMinutes(duration);
 
-				// todo: append children instead of innerHTML (performance)
+				let content = [`${time}`, `${ej}\'`, `${ej - time}`];
+				for (let i = 0, y = content.length; i < y; i++) {
+					let td = document.createElement('td');
+					td.innerHTML = content[i];
+					frag.appendChild(td);
+				}
 
-				ejTR.innerHTML += `<td>${time}\'</td>`;
-				ejTR.innerHTML += `<td>${ej}\'</td>`;
-				ejTR.innerHTML += `<td>${ej - time}\'</td>`;
-
+				ejTR.appendChild(frag);
 			}
 			else if (data.groupOne[value].name.includes('Lb')) {// Process Lbt project
+
 				let lbTR = getId('lbt');
+				let frag = document.createDocumentFragment();
+
 				let duration = data.groupOne[value].duration;
 				let time = durMinutes(duration);
 
-				// todo: append children instead of innerHTML (performance)
+				let content = [`${time}`, `${lbt}\'`, `${lbt - time}`];
+				for (let x = 0, y = content.length; x < y; x++) {
+					let td = document.createElement("td");
+					td.innerHTML = content[x];
+					frag.appendChild(td);
+				}
 
-				lbTR.innerHTML += `<td>${time}\'</td>`;
-				lbTR.innerHTML += `<td>${lbt}\'</td>`;
-				lbTR.innerHTML += `<td>${lbt - time}\'</td>`;
+				lbTR.appendChild(frag);
 			}
 			else {// Process main project tasks
 
@@ -110,76 +120,107 @@ fetch(
 				for (let task of tasks) {
 					let duration = data.groupOne[value].duration;
 					let time = durMinutes(task.duration);
-					let currEntry = task.name; //entry name
 
-					let calc;
-					switch (currEntry) {
+					let table = document.getElementById('table');
+					// let mainTR = document.getElementById('main');
+					let frag = document.createDocumentFragment();
+					let tr = document.createElement('tr');
+
+					let calc, content;
+					switch (task.name) {
 						case 'w':
 							calc = w - time; //compare to target
-							main.parentElement.innerHTML += `<tr id="w">`;
-							getId('w').innerHTML += `<td class="name">${currEntry}</td>`;
-							getId('w').innerHTML += `<td>${time}\'</td>`;
-							getId('w').innerHTML += `<td>${w}\'</td>`;
-							getId('w').innerHTML += `<td>${w - time}\'</td>`;
-							main.parentElement.innerHTML += '</tr>';
+							content = [task.name, `${time}`, `${w}`, `${w - time}`];
+							tr = document.createElement('tr');
+							tr.className = "named";
+
+							for (let i = 0, y = content.length; i < y; i++) {
+								let td = document.createElement('td');
+								td.innerHTML = content[i];
+								tr.appendChild(td);
+							}
+							frag.appendChild(tr);
 							break;
+
 						case "pract":
 							calc = pract - time;
-							main.parentElement.innerHTML += `<tr id="pract">`;
-							getId('pract').innerHTML += `<td class="name">${currEntry}</td>`;
-							getId('pract').innerHTML += `<td>${time}\'</td>`;
-							getId('pract').innerHTML += `<td>${pract}\'  (1440)</td>`;
-							getId('pract').innerHTML += `<td>${pract - time}\'</td>`;
-							main.parentElement.innerHTML += '</tr>';
+							content = [task.name, `${time}`, `${pract}`, `${pract - time}`];
+							tr = document.createElement('tr');
+							tr.className = "named";
+
+							for (let i = 0, y = content.length; i < y; i++) {
+								let td = document.createElement('td');
+								td.innerHTML = content[i];
+								tr.appendChild(td);
+							}
+							frag.appendChild(tr);
 							break;
+
 						case 'lb':
 							calc = lb - time;
-							main.parentElement.innerHTML += `<tr id="lb">`;
-							getId('lb').innerHTML += `<td class="name">${currEntry}</td>`;
-							getId('lb').innerHTML += `<td>${time}\'</td>`;
-							getId('lb').innerHTML += `<td>${lb}\'</td>`;
-							getId('lb').innerHTML += `<td>${lb - time}\'</td>`;
-							main.parentElement.innerHTML += '</tr>';
+							content = [task.name, `${time}`, `${lb}`, `${lb - time}`];
+							tr = document.createElement('tr');
+							tr.className = "named";
+
+							for (let i = 0, y = content.length; i < y; i++) {
+								let td = document.createElement('td');
+								td.innerHTML = content[i];
+								tr.appendChild(td);
+							}
+							frag.appendChild(tr);
+
 							break;
 						case 'p':
 							calc = p - time;
-							main.parentElement.innerHTML += `<tr id="p">`;
-							getId('p').innerHTML += `<td class="name">${currEntry}</td>`;
-							getId('p').innerHTML += `<td>${time}\'</td>`;
-							getId('p').innerHTML += `<td>${p}\'</td>`;
-							getId('p').innerHTML += `<td>${p - time}\'</td>`;
-							main.parentElement.innerHTML += '</tr>';
+							content = [task.name, `${time}`, `${p}`, `${p - time}`];
+							tr = document.createElement('tr');
+							tr.className = "named";
+
+							for (let i = 0, y = content.length; i < y; i++) {
+								let td = document.createElement('td');
+								td.innerHTML = content[i];
+								tr.appendChild(td);
+							}
+							frag.appendChild(tr);
+
 							break;
 						case 'eng':
 							calc = eng - time;
-							main.parentElement.innerHTML += `<tr id="eng">`;
-							getId('eng').innerHTML += `<td class="name">${currEntry}</td>`;
-							getId('eng').innerHTML += `<td>${time}\'</td>`;
-							getId('eng').innerHTML += `<td>${eng}\'</td>`;
-							getId('eng').innerHTML += `<td>${eng - time}\'</td>`;
-							main.parentElement.innerHTML += '</tr>';
+							content = [task.name, `${time}`, `${eng}`, `${eng - time}`];
+							tr = document.createElement('tr');
+							tr.className = "named";
+
+							for (let i = 0, y = content.length; i < y; i++) {
+								let td = document.createElement('td');
+								td.innerHTML = content[i];
+								tr.appendChild(td);
+							}
+							frag.appendChild(tr);
+
 							break;
 
 						default:
 							console.log('default');
 							break;
 					}
+
+					table.appendChild(frag); // This way we only insert content once instead of doing it for every entry.
+
 				}
 			}
 
 		}
 
-		//________________________________________________________________________
+		//__________________________________________________________________________
 
-		//process total count
+		/// Process total count
+
 		let total = durHours(data.totals[0].totalTime);
 		let totalTar = targets.targetHours;
 		let listItem = document.createElement('li');
 		let left = `<span id="totalLeft">${(totalTar - total).toFixed(2)}</span>`;
 
 		listItem.innerHTML += `Total: ${total} | Target: ${totalTar}-${totalTar + 10} | Left: ${left}`;
-
-		// listItem.innerHTML += `Total: ${total} | Target: ${totalTar} (${totalTar + 10}) | Left: ${(totalTar - total).toFixed(2)}`;
 
 		myList.appendChild(listItem);
 
