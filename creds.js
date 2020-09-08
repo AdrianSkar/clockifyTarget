@@ -7,7 +7,7 @@ const creds = {
 
 const targets = {
 	"workweek": 2400, // 40h (total workweek hours except "ej")
-	"targetHours": 50, // Weekly target in hours
+	"targetHours": { default: 50, max: +10 }, // Weekly target in hours
 	"ej": { default: 600, recovery: -10 }, // 10h project
 	"lbt": 1200,
 	"w": { default: 600, ratio: 0.25, recovery: -294 }, // default target and ratio if default doesn't apply (other higher priority projects)
@@ -18,8 +18,7 @@ const targets = {
 	// recovery is a modifier that involves previous surpluses of times and is 
 	// used to adjust targets accordingly 
 	pendingColor: 'firebrick',
-	recoveryColor: 'blue',
+	recoveryColor: 'coral',
 	doneColor: 'forestgreen'
-
 };
 export { creds, targets };

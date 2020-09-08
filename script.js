@@ -4,8 +4,6 @@ var myList = document.querySelector('ul');
 
 /// Dates to pass on to the request (start and end as ISO strings):
 
-// let today = new Date();
-
 let getMonday = () => {
 	const d = new Date(),
 		day = d.getDay();
@@ -26,6 +24,7 @@ let end = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate
 // Time conversion functions
 let durMinutes = val => Math.round(val / 60);
 let durHours = val => (val / 3600).toFixed(2);
+
 let getId = val => document.getElementById(val);
 
 // Variables holding fetched data and default target times
@@ -39,19 +38,13 @@ fetch(
 		"X-Api-Key": `${creds.apiKey}`
 	},
 	body: JSON.stringify({
-
 		"dateRangeStart": start,
 		"dateRangeEnd": end,
 		"summaryFilter": {
 			"groups": [
 				"project",
 				"timeentry"
-			],
-
-			// SETTINGS (OPTIONAL)
-			"sortColumn": "duration",
-			// FILTERS (OPTIONAL)
-
+			]
 		}
 	})
 }
@@ -63,12 +56,12 @@ fetch(
 		return response.json();
 	})
 	.then(function (json) {
-		// console.log('ok:', json);
+		console.log('ok:', json);
 		data = json;
 
-		/// Redefine main target values according to defined ratios and to Lbt project if present (hardcoded lbDur)
+		/// Redefine main target values according to defined ratios (creds.js) and to Lbt project if present (hardcoded lbDur)
 		let lbDur = durMinutes(data.groupOne[1].duration); // duration in mins of lbt project
-		if (lbDur > 1) {
+		if (lbDur > 0) {
 			let ww = targets.workweek, entry = (val => targets[val].ratio);
 			w = Math.round((ww - lbDur) * entry('w'));
 			pract = Math.round((ww - lbDur) * entry('pract'));
@@ -77,14 +70,10 @@ fetch(
 			eng = Math.round((ww - lbDur) * entry('eng'));
 		}
 
-		/// Add color depending on results:
+		/// Return color depending on results:
 		let colorize = function (left, rec) {
 			let recLeft = left + rec;
 			return (recLeft >= 0) ? ((left >= 0) ? targets.pendingColor : targets.recoveryColor) : targets.doneColor;
-
-			// Checking for left first
-			// console.log('left: ', left, 'rec:', rec);
-			// return (left >= 0) ? targets.pendingColor : (left + rec >= 0) ? targets.recoveryColor : targets.doneColor;
 		};
 
 		/// Loop through projects
@@ -99,7 +88,7 @@ fetch(
 				calc = ej - time;
 
 				content = [`${time}`, `${ej}\'`, `${calc}`];
-				for (let i = 0, y = content.length; i < y; i++) {
+				for (let i = 0, y = content.length; i < y; i++) {//append content as td elements
 					let td = document.createElement('td');
 					td.innerHTML = content[i];
 					frag.appendChild(td);
@@ -137,7 +126,6 @@ fetch(
 					let time = durMinutes(task.duration);
 
 					let table = document.getElementById('table');
-					// let mainTR = document.getElementById('main');
 					let frag = document.createDocumentFragment();
 					let tr = document.createElement('tr');
 
@@ -145,10 +133,10 @@ fetch(
 					switch (task.name) {
 						case 'w':
 							calc = w - time; //compare to target
-							content = [task.name, `${time}`, `${w}`, `${calc}`];
+							content = [task.name, `${time}`, `${w}`, `${calc}`];// cells data
 							tr = document.createElement('tr');
 							tr.className = "named";
-							tr.setAttribute('title', `target + recovery: ${w + targets.w.recovery}`);
+							tr.setAttribute('title', `target + recovery: ${w + targets.w.recovery}`); //used as tooltip to show target + recovery times
 
 							for (let i = 0, y = content.length; i < y; i++) {
 								let td = document.createElement('td');
@@ -162,7 +150,7 @@ fetch(
 
 						case "pract":
 							calc = pract - time;
-							content = [task.name + '<sup>r</sup>', `${time}`, `${pract}`, `${calc}`];
+							content = [task.name, `${time}`, `${pract}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
 							tr.setAttribute('title', `target + recovery: ${pract + targets.pract.recovery}`);
@@ -246,7 +234,7 @@ fetch(
 		/// Process total count
 
 		let total = durHours(data.totals[0].totalTime);
-		let totalTar = targets.targetHours;
+		let totalTar = targets.targetHours.default;
 		let listItem = document.createElement('li');
 		let left = `<span id="totalLeft">${(totalTar - total).toFixed(2)}</span>`;
 
@@ -255,7 +243,9 @@ fetch(
 		myList.appendChild(listItem);
 
 		let totalLeft = document.getElementById('totalLeft');
-		totalLeft.style.color = (totalTar - total > 1) ? targets.pendingColor : targets.doneColor;
+
+		totalLeft.style.color = colorize((totalTar - total), targets.targetHours.max);
+		// totalLeft.style.color = (totalTar - total > 1) ? targets.pendingColor : targets.doneColor;
 
 		//__________________________________________________________________________
 
