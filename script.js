@@ -29,7 +29,7 @@ let durHours = val => (val / 3600).toFixed(2);
 let getId = val => document.getElementById(val);
 
 // Variables holding fetched data and default target times
-let data, ej = targets.ej, w = targets.w.default, pract = targets.pract.default, lb = targets.lb.default, p = targets.p.default, eng = targets.eng.default, lbt = targets.lbt;
+let data, ej = targets.ej.default, w = targets.w.default, pract = targets.pract.default, lb = targets.lb.default, p = targets.p.default, eng = targets.eng.default, lbt = targets.lbt;
 fetch(
 	`https://reports.api.clockify.me/v1/workspaces/${creds.workspace}/reports/summary`, {
 	method: 'POST',
@@ -78,8 +78,13 @@ fetch(
 		}
 
 		/// Add color depending on results:
-		let colorize = function (val) {
-			return (val >= 0) ? targets.pendingColor : targets.doneColor;
+		let colorize = function (left, rec) {
+			let recLeft = left + rec;
+			return (recLeft >= 0) ? ((left >= 0) ? targets.pendingColor : targets.recoveryColor) : targets.doneColor;
+
+			// Checking for left first
+			// console.log('left: ', left, 'rec:', rec);
+			// return (left >= 0) ? targets.pendingColor : (left + rec >= 0) ? targets.recoveryColor : targets.doneColor;
 		};
 
 		/// Loop through projects
@@ -100,8 +105,9 @@ fetch(
 					frag.appendChild(td);
 				}
 				ejTR.appendChild(frag);
+				ejTR.setAttribute('title', `target + recovery: ${ej + targets.ej.recovery}`);
 
-				ejTR.lastChild.style.color = colorize((calc));
+				ejTR.lastChild.style.color = colorize(calc, targets.ej.recovery);
 			}
 			else if (data.groupOne[value].name.includes('Lb')) {// Process Lbt project
 				let lbTR = getId('lbt');
@@ -119,7 +125,7 @@ fetch(
 				}
 				lbTR.appendChild(frag);
 
-				lbTR.lastChild.style.color = colorize((calc));
+				lbTR.lastChild.style.color = colorize(calc, 0);
 			}
 			else {// Process main project tasks
 
@@ -142,13 +148,14 @@ fetch(
 							content = [task.name, `${time}`, `${w}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
+							tr.setAttribute('title', `target + recovery: ${w + targets.w.recovery}`);
 
 							for (let i = 0, y = content.length; i < y; i++) {
 								let td = document.createElement('td');
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
-							tr.lastChild.style.color = colorize((calc));
+							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
 
 							frag.appendChild(tr);
 							break;
@@ -158,14 +165,14 @@ fetch(
 							content = [task.name + '<sup>r</sup>', `${time}`, `${pract}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
-							tr.setAttribute('title', `t + r: ${pract + targets.pract.recovery}`);
+							tr.setAttribute('title', `target + recovery: ${pract + targets.pract.recovery}`);
 
 							for (let i = 0, y = content.length; i < y; i++) {
 								let td = document.createElement('td');
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
-							tr.lastChild.style.color = colorize((calc));
+							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
 
 							frag.appendChild(tr);
 							break;
@@ -175,13 +182,14 @@ fetch(
 							content = [task.name, `${time}`, `${lb}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
+							tr.setAttribute('title', `target + recovery: ${lb + targets.lb.recovery}`);
 
 							for (let i = 0, y = content.length; i < y; i++) {
 								let td = document.createElement('td');
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
-							tr.lastChild.style.color = colorize((calc));
+							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
 
 							frag.appendChild(tr);
 
@@ -191,13 +199,14 @@ fetch(
 							content = [task.name, `${time}`, `${p}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
+							tr.setAttribute('title', `target + recovery: ${p + targets.p.recovery}`);
 
 							for (let i = 0, y = content.length; i < y; i++) {
 								let td = document.createElement('td');
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
-							tr.lastChild.style.color = colorize((calc));
+							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
 
 							frag.appendChild(tr);
 
@@ -207,13 +216,14 @@ fetch(
 							content = [task.name, `${time}`, `${eng}`, `${calc}`];
 							tr = document.createElement('tr');
 							tr.className = "named";
+							tr.setAttribute('title', `target + recovery: ${eng + targets.eng.recovery}`);
 
 							for (let i = 0, y = content.length; i < y; i++) {
 								let td = document.createElement('td');
 								td.innerHTML = content[i];
 								tr.appendChild(td);
 							}
-							tr.lastChild.style.color = colorize((calc));
+							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
 
 							frag.appendChild(tr);
 
