@@ -120,13 +120,13 @@ fetch(
 
 				//output task names, and duration into a list
 				let tasks = data.groupOne[value].children;
+				let contentArr = [];
+				let table = document.getElementById('table');
+				let frag = document.createDocumentFragment();
 
 				for (let task of tasks) {
 					let duration = data.groupOne[value].duration;
 					let time = durMinutes(task.duration);
-
-					let table = document.getElementById('table');
-					let frag = document.createDocumentFragment();
 					let tr = document.createElement('tr');
 
 					let content;
@@ -145,7 +145,12 @@ fetch(
 							}
 							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
 
-							frag.appendChild(tr);
+							//include content in array to later order and output it
+							let wC = {};
+							wC.name = task.name;
+							wC.content = tr;
+							contentArr.push(wC);
+
 							break;
 
 						case "pract":
@@ -162,7 +167,11 @@ fetch(
 							}
 							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
 
-							frag.appendChild(tr);
+							let practC = {};
+							practC.name = task.name;
+							practC.content = tr;
+							contentArr.push(practC);
+
 							break;
 
 						case 'lb':
@@ -179,7 +188,10 @@ fetch(
 							}
 							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
 
-							frag.appendChild(tr);
+							let lbC = {};
+							lbC.name = task.name;
+							lbC.content = tr;
+							contentArr.push(lbC);
 
 							break;
 						case 'p':
@@ -196,7 +208,10 @@ fetch(
 							}
 							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
 
-							frag.appendChild(tr);
+							let pC = {};
+							pC.name = task.name;
+							pC.content = tr;
+							contentArr.push(pC);
 
 							break;
 						case 'eng':
@@ -213,7 +228,10 @@ fetch(
 							}
 							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
 
-							frag.appendChild(tr);
+							let engC = {};
+							engC.name = task.name;
+							engC.content = tr;
+							contentArr.push(engC);
 
 							break;
 
@@ -221,10 +239,20 @@ fetch(
 							console.log('default');
 							break;
 					}
-
-					table.appendChild(frag); // This way we only insert content once instead of doing it for every entry.
-
 				}
+				/// Order output by ratio
+
+				contentArr = contentArr.sort((a, b) => {
+					return targets[b.name].ratio - targets[a.name].ratio;
+				});
+
+				//add it to document fragment
+				contentArr.forEach(element => {
+					frag.appendChild(element.content);
+				});
+
+				table.appendChild(frag); // output content
+
 			}
 
 		}
