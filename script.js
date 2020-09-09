@@ -120,128 +120,64 @@ fetch(
 
 				//output task names, and duration into a list
 				let tasks = data.groupOne[value].children;
-				let contentArr = [];
+				let mainArr = ['pract', 'w', 'eng', 'p', 'lb'];
+
+				let contentArr = [], tasksArr = [];
 				let table = document.getElementById('table');
 				let frag = document.createDocumentFragment();
+				let tr = document.createElement('tr');
+
+				let content;
+				let duration = data.groupOne[value].duration;
+
+
+				///output function 
+
+				const mainTask = function (task) {
+					let taskTime = targets[task.name].default;
+					let time = durMinutes(task.duration) || 0;
+
+					calc = taskTime - time;
+					content = [task.name, `${time}`, `${taskTime}`, `${calc}`];
+					tr = document.createElement('tr');
+					tr.className = "named";
+					tr.setAttribute('title', `target + recovery: ${taskTime + targets[task.name].recovery}`);
+
+					for (let i = 0, y = content.length; i < y; i++) {
+						let td = document.createElement('td');
+						td.innerHTML = content[i];
+						tr.appendChild(td);
+					}
+					tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
+
+					let toContent = {};
+					toContent.name = task.name;
+					toContent.content = tr;
+					contentArr.push(toContent);
+				};
+				//____________________________________________________________________
 
 				for (let task of tasks) {
-					let duration = data.groupOne[value].duration;
-					let time = durMinutes(task.duration);
-					let tr = document.createElement('tr');
-
-					let content;
-					switch (task.name) {
-						case 'w':
-							calc = w - time; //compare to target
-							content = [task.name, `${time}`, `${w}`, `${calc}`];// cells data
-							tr = document.createElement('tr');
-							tr.className = "named";
-							tr.setAttribute('title', `target + recovery: ${w + targets.w.recovery}`); //used as tooltip to show target + recovery times
-
-							for (let i = 0, y = content.length; i < y; i++) {
-								let td = document.createElement('td');
-								td.innerHTML = content[i];
-								tr.appendChild(td);
-							}
-							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
-
-							//include content in array to later order and output it
-							let wC = {};
-							wC.name = task.name;
-							wC.content = tr;
-							contentArr.push(wC);
-
-							break;
-
-						case "pract":
-							calc = pract - time;
-							content = [task.name, `${time}`, `${pract}`, `${calc}`];
-							tr = document.createElement('tr');
-							tr.className = "named";
-							tr.setAttribute('title', `target + recovery: ${pract + targets.pract.recovery}`);
-
-							for (let i = 0, y = content.length; i < y; i++) {
-								let td = document.createElement('td');
-								td.innerHTML = content[i];
-								tr.appendChild(td);
-							}
-							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
-
-							let practC = {};
-							practC.name = task.name;
-							practC.content = tr;
-							contentArr.push(practC);
-
-							break;
-
-						case 'lb':
-							calc = lb - time;
-							content = [task.name, `${time}`, `${lb}`, `${calc}`];
-							tr = document.createElement('tr');
-							tr.className = "named";
-							tr.setAttribute('title', `target + recovery: ${lb + targets.lb.recovery}`);
-
-							for (let i = 0, y = content.length; i < y; i++) {
-								let td = document.createElement('td');
-								td.innerHTML = content[i];
-								tr.appendChild(td);
-							}
-							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
-
-							let lbC = {};
-							lbC.name = task.name;
-							lbC.content = tr;
-							contentArr.push(lbC);
-
-							break;
-						case 'p':
-							calc = p - time;
-							content = [task.name, `${time}`, `${p}`, `${calc}`];
-							tr = document.createElement('tr');
-							tr.className = "named";
-							tr.setAttribute('title', `target + recovery: ${p + targets.p.recovery}`);
-
-							for (let i = 0, y = content.length; i < y; i++) {
-								let td = document.createElement('td');
-								td.innerHTML = content[i];
-								tr.appendChild(td);
-							}
-							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
-
-							let pC = {};
-							pC.name = task.name;
-							pC.content = tr;
-							contentArr.push(pC);
-
-							break;
-						case 'eng':
-							calc = eng - time;
-							content = [task.name, `${time}`, `${eng}`, `${calc}`];
-							tr = document.createElement('tr');
-							tr.className = "named";
-							tr.setAttribute('title', `target + recovery: ${eng + targets.eng.recovery}`);
-
-							for (let i = 0, y = content.length; i < y; i++) {
-								let td = document.createElement('td');
-								td.innerHTML = content[i];
-								tr.appendChild(td);
-							}
-							tr.lastChild.style.color = colorize(calc, targets[task.name].recovery);
-
-							let engC = {};
-							engC.name = task.name;
-							engC.content = tr;
-							contentArr.push(engC);
-
-							break;
-
-						default:
-							console.log('default');
-							break;
-					}
+					mainTask(task);
 				}
-				/// Order output by ratio
+				//______________________________________________________________________
 
+				console.log(contentArr);
+
+				/// Output main tasks for which there's no logged time yet
+				mainArr.forEach(val => {
+					let dummy = contentArr.map(a => a.name);
+					if (dummy.includes(val)) {
+						console.log('fetched', val);
+					} else {
+						let dummyTask = { name: val, time: 0 };
+						mainTask(dummyTask);
+						console.log(val);
+					}
+				});
+
+
+				/// Order output by ratio
 				contentArr = contentArr.sort((a, b) => {
 					return targets[b.name].ratio - targets[a.name].ratio;
 				});
