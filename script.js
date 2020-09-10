@@ -1,10 +1,8 @@
 import { creds, targets } from './creds.js'; // Credentials for the api
 
-var myList = document.querySelector('ul');
-
 /// Dates to pass on to the request (start and end as ISO strings):
 
-let getMonday = () => {
+const getMonday = () => {
 	const d = new Date(),
 		day = d.getDay();
 	// calculate the day to set as monday (0)
@@ -12,21 +10,20 @@ let getMonday = () => {
 	return new Date(d.setDate(diff));
 };
 
-let monday = getMonday();
+const monday = getMonday();
+const start = new Date(Date.UTC(monday.getFullYear(), monday.getMonth(), monday.getDate(), 0, 0, 0)).toISOString(); // Mon, 00:00:00 (UTC/ISO)
 
-let start = new Date(Date.UTC(monday.getFullYear(), monday.getMonth(), monday.getDate(), 0, 0, 0)).toISOString(); // Mon, 00:00:00 (UTC/ISO)
+const today = new Date();
+const end = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)).toISOString(); // Today, 23:59:59 (UTC/ISO)
 
-let today = new Date();
-let end = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)).toISOString(); // Today, 23:59:59 (UTC/ISO)
-
-///___________________________________________________________________________
+///_____________________________________________________________________________
 
 // Time conversion functions
-let durMinutes = val => Math.round(val / 60);
-let durHours = val => (val / 3600).toFixed(2);
+const durMinutes = val => Math.round(val / 60);
+const durHours = val => (val / 3600).toFixed(2);
 
-let getId = val => document.getElementById(val);
-
+const getId = val => document.getElementById(val);
+let myList = document.querySelector('ul');
 // Variables holding fetched data and default target times
 let data, ej = targets.ej.default, w = targets.w.default, pract = targets.pract.default, lb = targets.lb.default, p = targets.p.default, eng = targets.eng.default, lbt = targets.lbt;
 fetch(
@@ -55,23 +52,27 @@ fetch(
 		}
 		return response.json();
 	})
-	.then(function (json) {
-		console.log('ok:', json);
-		data = json;
+	.then(function (data) {
+		// console.log('ok:', data);
 
 		/// Redefine main target values according to defined ratios (creds.js) and to Lbt project if present (hardcoded lbDur)
-		let lbDur = durMinutes(data.groupOne[1].duration); // duration in mins of lbt project
-		if (lbDur > 0) {
-			let ww = targets.workweek, entry = (val => targets[val].ratio);
-			w = Math.round((ww - lbDur) * entry('w'));
-			pract = Math.round((ww - lbDur) * entry('pract'));
-			lb = Math.round((ww - lbDur) * entry('lb'));
-			p = Math.round((ww - lbDur) * entry('p'));
-			eng = Math.round((ww - lbDur) * entry('eng'));
-		}
+		let lbtDur = durMinutes(data.groupOne[1].duration); // duration in mins of lbt project
+		let ww = targets.workweek;
+
+		const taskTargets = function (val) {
+			if (lbtDur > 0) {// If there's record of lbt; calculate accordingly
+				return Math.round((ww - lbtDur) * targets[val].ratio);
+			}// if lbtDur surpasses workweek set to 0, otherwise load defaults
+			return (lbtDur >= ww) ? 0 : targets[val].default;
+		};
+		w = taskTargets('w');
+		pract = taskTargets('pract');
+		lb = taskTargets('lb');
+		p = taskTargets('p');
+		eng = taskTargets('eng');
 
 		/// Return color depending on results:
-		let colorize = function (left, rec) {
+		const colorize = function (left, rec) {
 			let recLeft = left + rec;
 			return (recLeft >= 0) ? ((left >= 0) ? targets.pendingColor : targets.recoveryColor) : targets.doneColor;
 		};
@@ -80,11 +81,11 @@ fetch(
 		for (const value in data.groupOne) {
 			let calc, content;
 			if (data.groupOne[value].name.includes('Ej')) {// Process Ej project
-				let ejTR = getId('ej');
-				let frag = document.createDocumentFragment();
+				const ejTR = getId('ej');
+				const frag = document.createDocumentFragment();
 
-				let duration = data.groupOne[value].duration;
-				let time = durMinutes(duration);
+				const duration = data.groupOne[value].duration;
+				const time = durMinutes(duration);
 				calc = ej - time;
 
 				content = [`${time}`, `${ej}\'`, `${calc}`];
@@ -99,11 +100,11 @@ fetch(
 				ejTR.lastChild.style.color = colorize(calc, targets.ej.recovery);
 			}
 			else if (data.groupOne[value].name.includes('Lb')) {// Process Lbt project
-				let lbTR = getId('lbt');
-				let frag = document.createDocumentFragment();
+				const lbTR = getId('lbt');
+				const frag = document.createDocumentFragment();
 
-				let duration = data.groupOne[value].duration;
-				let time = durMinutes(duration);
+				const duration = data.groupOne[value].duration;
+				const time = durMinutes(duration);
 				calc = lbt - time;
 
 				content = [`${time}`, `${lbt}\'`, `${calc}`];
@@ -119,27 +120,25 @@ fetch(
 			else {// Process main project tasks
 
 				//output task names, and duration into a list
-				let tasks = data.groupOne[value].children;
+				const tasks = data.groupOne[value].children;
 				let mainArr = ['pract', 'w', 'eng', 'p', 'lb'];
 
 				let contentArr = [], tasksArr = [];
 				let table = document.getElementById('table');
 				let frag = document.createDocumentFragment();
-				let tr = document.createElement('tr');
+				// let tr = document.createElement('tr');
 
 				let content;
-				let duration = data.groupOne[value].duration;
-
 
 				///output function 
 
 				const mainTask = function (task) {
-					let taskTime = targets[task.name].default;
-					let time = durMinutes(task.duration) || 0;
+					const taskTime = targets[task.name].default;
+					const time = durMinutes(task.duration) || 0;
+					let tr = document.createElement('tr');
 
 					calc = taskTime - time;
 					content = [task.name, `${time}`, `${taskTime}`, `${calc}`];
-					tr = document.createElement('tr');
 					tr.className = "named";
 					tr.setAttribute('title', `target + recovery: ${taskTime + targets[task.name].recovery}`);
 
@@ -155,29 +154,26 @@ fetch(
 					toContent.content = tr;
 					contentArr.push(toContent);
 				};
-				//____________________________________________________________________
 
-				for (let task of tasks) {
-					mainTask(task);
-				}
-				//______________________________________________________________________
+				/// Iterate over fetched main tasks and apply the output function
 
-				console.log(contentArr);
+				for (let task of tasks) { mainTask(task); }
+
 
 				/// Output main tasks for which there's no logged time yet
+
 				mainArr.forEach(val => {
-					let dummy = contentArr.map(a => a.name);
-					if (dummy.includes(val)) {
-						console.log('fetched', val);
+					let fetched = contentArr.map(a => a.name);
+					if (fetched.includes(val)) {
+						// console.log('fetched', val);
 					} else {
 						let dummyTask = { name: val, time: 0 };
 						mainTask(dummyTask);
-						console.log(val);
 					}
 				});
 
-
 				/// Order output by ratio
+
 				contentArr = contentArr.sort((a, b) => {
 					return targets[b.name].ratio - targets[a.name].ratio;
 				});
@@ -187,35 +183,33 @@ fetch(
 					frag.appendChild(element.content);
 				});
 
-				table.appendChild(frag); // output content
+				/// Output content
+				table.appendChild(frag);
 
 			}
 
 		}
-
 		//__________________________________________________________________________
 
 		/// Process total count
 
-		let total = durHours(data.totals[0].totalTime);
-		let totalTar = targets.targetHours.default;
-		let listItem = document.createElement('li');
-		let left = `<span id="totalLeft">${(totalTar - total).toFixed(2)}</span>`;
+		const total = durHours(data.totals[0].totalTime);
+		const totalTar = targets.targetHours.default;
+		const listItem = document.createElement('li');
+		const left = `<span id="totalLeft">${(totalTar - total).toFixed(2)}</span>`;
 
 		listItem.innerHTML += `Total: ${total} | Target: ${totalTar}-${totalTar + 10} | Left: ${left}`;
 
 		myList.appendChild(listItem);
 
 		let totalLeft = document.getElementById('totalLeft');
-
 		totalLeft.style.color = colorize((totalTar - total), targets.targetHours.max);
-		// totalLeft.style.color = (totalTar - total > 1) ? targets.pendingColor : targets.doneColor;
 
 		//__________________________________________________________________________
 
 	})
 	.catch(function (error) {
-		var p = document.createElement('p');
+		let p = document.createElement('p');
 		p.appendChild(
 			document.createTextNode('Error: ' + error.message)
 		);
