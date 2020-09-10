@@ -5,8 +5,8 @@ import { creds, targets } from './creds.js'; // Credentials for the api
 const getMonday = () => {
 	const d = new Date(),
 		day = d.getDay();
-	// calculate the day to set as monday (0)
-	const diff = d.getDate() - day + (day === 0 ? -6 : 1); //adjust for sundays
+	// calculate the day to set as Monday (0)
+	const diff = d.getDate() - day + (day === 0 ? -6 : 1); //adjust for Sundays
 	return new Date(d.setDate(diff));
 };
 
@@ -25,7 +25,7 @@ const durHours = val => (val / 3600).toFixed(2);
 const getId = val => document.getElementById(val);
 let myList = document.querySelector('ul');
 // Variables holding fetched data and default target times
-let data, ej = targets.ej.default, w = targets.w.default, pract = targets.pract.default, lb = targets.lb.default, p = targets.p.default, eng = targets.eng.default, lbt = targets.lbt;
+let data, ej = targets.ej.default, lbt = targets.lbt;
 fetch(
 	`https://reports.api.clockify.me/v1/workspaces/${creds.workspace}/reports/summary`, {
 	method: 'POST',
@@ -60,7 +60,7 @@ fetch(
 		let lbtDur;
 		data.groupOne.filter(val => {
 			if (val.name.includes('Lb')) {
-				lbtDur = durMinutes(val.duration); // duration in mins of lbt project 
+				lbtDur = durMinutes(val.duration); // Duration in mins of lbt project 
 			}
 		});
 		let ww = targets.workweek;
@@ -68,14 +68,14 @@ fetch(
 		const taskTargets = function (val) {
 			if (lbtDur > 0) {// If there's record of lbt; calculate accordingly
 				return Math.round((ww - lbtDur) * targets[val].ratio);
-			}// if lbtDur surpasses workweek set to 0, otherwise load defaults
+			}// If lbtDur surpasses workweek set to 0, otherwise load defaults
 			return (lbtDur >= ww) ? 0 : targets[val].default;
 		};
-		w = taskTargets('w');
-		pract = taskTargets('pract');
-		lb = taskTargets('lb');
-		p = taskTargets('p');
-		eng = taskTargets('eng');
+		let w = taskTargets('w');
+		let pract = taskTargets('pract');
+		let lb = taskTargets('lb');
+		let p = taskTargets('p');
+		let eng = taskTargets('eng');
 
 		/// Return color depending on results:
 		const colorize = function (left, rec) {
@@ -95,7 +95,7 @@ fetch(
 				calc = ej - time;
 
 				content = [`${time}`, `${ej}\'`, `${calc}`];
-				for (let i = 0, y = content.length; i < y; i++) {//append content as td elements
+				for (let i = 0, y = content.length; i < y; i++) {// Append content as td elements
 					let td = document.createElement('td');
 					td.innerHTML = content[i];
 					frag.appendChild(td);
@@ -125,14 +125,13 @@ fetch(
 			}
 			else {// Process main project tasks
 
-				//output task names, and duration into a list
+				// Output task names, and duration into a list
 				const tasks = data.groupOne[value].children;
 				let mainArr = ['pract', 'w', 'eng', 'p', 'lb'];
 
-				let contentArr = [], tasksArr = [];
+				let contentArr = [];
 				let table = document.getElementById('table');
 				let frag = document.createDocumentFragment();
-				// let tr = document.createElement('tr');
 
 				let content;
 
@@ -165,7 +164,6 @@ fetch(
 
 				for (let task of tasks) { mainTask(task); }
 
-
 				/// Output main tasks for which there's no logged time yet
 
 				mainArr.forEach(val => {
@@ -184,7 +182,7 @@ fetch(
 					return targets[b.name].ratio - targets[a.name].ratio;
 				});
 
-				//add it to document fragment
+				// Add it to document fragment
 				contentArr.forEach(element => {
 					frag.appendChild(element.content);
 				});
