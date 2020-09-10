@@ -1,18 +1,30 @@
+body {
+	margin: 1rem;
+	font-family: Cambria, Cochin, Times, 'Times New Roman', serif;
+}
+
 table {
-	/* border-bottom: 1px solid #333; */
 	border-collapse: collapse;
+	border: 1px solid #ccc;
 }
 
 th, td {
 	padding: 0.6em;
 }
 
-th {
-	border-bottom: 1px solid #333;
+td {
+	border: 1px dotted gray;
+	border-left: 1px dotted black;
+	background-color: rgb(255, 254, 241);
+	text-align: right;
 }
 
-td {
-	border: 1px solid gray;
+ul {
+	padding-left: 1rem;
+}
+
+li {
+	list-style-type: square;
 }
 
 /* 
@@ -21,10 +33,6 @@ https://developer.mozilla.org/en-US/docs/Web/CSS/:not
 td:not(.named :first-child) { 
 	text-align: right;
 } */
-
-td {
-	text-align: right;
-}
 
 .named :first-child {
 	text-align: left;

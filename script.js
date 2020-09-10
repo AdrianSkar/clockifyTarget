@@ -192,7 +192,7 @@ fetch(
 			listItem = document.createElement('li'),
 			left = `<span id="totalLeft">${(totalTar - total).toFixed(2)}</span>`;
 
-		listItem.innerHTML += `Total: ${total} | Target: ${totalTar}-${totalTar + 10} | Left: ${left}`;
+		listItem.innerHTML += `Total hours: ${total} &#183; Target: ${totalTar}-${totalTar + 10} &#183; Left: ${left}`;
 
 		myList.appendChild(listItem);
 
