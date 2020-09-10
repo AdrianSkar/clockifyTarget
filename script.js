@@ -85,18 +85,18 @@ fetch(
 
 		/// Loop through projects
 		for (const value in data.groupOne) {
-			let calc, content;
+			let calc, content,
+				frag = document.createDocumentFragment(),
+				duration = data.groupOne[value].duration,
+				time = durMinutes(duration);
+
 			if (data.groupOne[value].name.includes('Ej')) {// Process Ej project
 				const ejTR = getId('ej');
-				const frag = document.createDocumentFragment();
-
-				const duration = data.groupOne[value].duration;
-				const time = durMinutes(duration);
 				calc = ej - time;
 
 				content = [`${time}`, `${ej}\'`, `${calc}`];
-				for (let i = 0, y = content.length; i < y; i++) {// Append content as td elements
-					let td = document.createElement('td');
+				for (let i = 0, y = content.length, td; i < y; i++) {// Append content as td elements
+					td = document.createElement('td');
 					td.innerHTML = content[i];
 					frag.appendChild(td);
 				}
@@ -107,15 +107,11 @@ fetch(
 			}
 			else if (data.groupOne[value].name.includes('Lb')) {// Process Lbt project
 				const lbTR = getId('lbt');
-				const frag = document.createDocumentFragment();
-
-				const duration = data.groupOne[value].duration;
-				const time = durMinutes(duration);
 				calc = lbt - time;
 
 				content = [`${time}`, `${lbt}\'`, `${calc}`];
-				for (let x = 0, y = content.length; x < y; x++) {
-					let td = document.createElement("td");
+				for (let x = 0, y = content.length, td; x < y; x++) {
+					td = document.createElement("td");
 					td.innerHTML = content[x];
 					frag.appendChild(td);
 				}
@@ -125,21 +121,16 @@ fetch(
 			}
 			else {// Process main project tasks
 
-				// Output task names, and duration into a list
 				const tasks = data.groupOne[value].children;
-				let mainArr = ['pract', 'w', 'eng', 'p', 'lb'];
+				let mainArr = ['pract', 'w', 'eng', 'p', 'lb'],
+					contentArr = [],
+					table = document.getElementById('table');
 
-				let contentArr = [];
-				let table = document.getElementById('table');
-				let frag = document.createDocumentFragment();
-
-				let content;
-
-				///output function 
+				/// Output function 
 
 				const mainTask = function (task) {
-					const taskTime = targets[task.name].default;
-					const time = durMinutes(task.duration) || 0;
+					const taskTime = targets[task.name].default,
+						time = durMinutes(task.duration) || 0;
 					let tr = document.createElement('tr');
 
 					calc = taskTime - time;
@@ -147,8 +138,8 @@ fetch(
 					tr.className = "named";
 					tr.setAttribute('title', `target + recovery: ${taskTime + targets[task.name].recovery}`);
 
-					for (let i = 0, y = content.length; i < y; i++) {
-						let td = document.createElement('td');
+					for (let i = 0, y = content.length, td; i < y; i++) {
+						td = document.createElement('td');
 						td.innerHTML = content[i];
 						tr.appendChild(td);
 					}
@@ -191,16 +182,15 @@ fetch(
 				table.appendChild(frag);
 
 			}
-
 		}
 		//__________________________________________________________________________
 
 		/// Process total count
 
-		const total = durHours(data.totals[0].totalTime);
-		const totalTar = targets.targetHours.default;
-		const listItem = document.createElement('li');
-		const left = `<span id="totalLeft">${(totalTar - total).toFixed(2)}</span>`;
+		const total = durHours(data.totals[0].totalTime),
+			totalTar = targets.targetHours.default,
+			listItem = document.createElement('li'),
+			left = `<span id="totalLeft">${(totalTar - total).toFixed(2)}</span>`;
 
 		listItem.innerHTML += `Total: ${total} | Target: ${totalTar}-${totalTar + 10} | Left: ${left}`;
 
