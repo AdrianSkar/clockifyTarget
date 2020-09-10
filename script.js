@@ -55,8 +55,14 @@ fetch(
 	.then(function (data) {
 		// console.log('ok:', data);
 
-		/// Redefine main target values according to defined ratios (creds.js) and to Lbt project if present (hardcoded lbDur)
-		let lbtDur = durMinutes(data.groupOne[1].duration); // duration in mins of lbt project
+		/// Redefine main target values according to defined ratios (creds.js) and to Lbt project if present
+
+		let lbtDur;
+		data.groupOne.filter(val => {
+			if (val.name.includes('Lb')) {
+				lbtDur = durMinutes(val.duration); // duration in mins of lbt project 
+			}
+		});
 		let ww = targets.workweek;
 
 		const taskTargets = function (val) {
