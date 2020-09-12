@@ -1,4 +1,4 @@
-import { creds, targets } from './creds.js'; // Credentials for the api
+import { creds, targets } from './creds.js'; // Credentials for the api 
 
 /// Dates to pass on to the request (start and end as ISO strings):
 
@@ -10,22 +10,30 @@ const getMonday = () => {
 	return new Date(d.setDate(diff));
 };
 
-const monday = getMonday();
-const start = new Date(Date.UTC(monday.getFullYear(), monday.getMonth(), monday.getDate(), 0, 0, 0)).toISOString(); // Mon, 00:00:00 (UTC/ISO)
+const monday = getMonday(),
+	start = new Date(Date.UTC(monday.getFullYear(), monday.getMonth(), monday.getDate(), 0, 0, 0)).toISOString(); // Mon, 00:00:00 (UTC/ISO)
 
-const today = new Date();
-const end = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)).toISOString(); // Today, 23:59:59 (UTC/ISO)
+const today = new Date(),
+	end = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)).toISOString(); // Today, 23:59:59 (UTC/ISO)
 
-///_____________________________________________________________________________
+/// Add week number to page title
 
-// Time conversion functions
-const durMinutes = val => Math.round(val / 60);
-const durHours = val => (val / 3600).toFixed(2);
+Date.prototype.getWeek = function () {//https://stackoverflow.com/questions/9045868/javascript-date-getweek
+	let oneJan = new Date(this.getFullYear(), 0, 1);
+	return Math.ceil((((this - oneJan) / 86400000) + oneJan.getDay() - 1) / 7);
+};
 
-const getId = val => document.getElementById(val);
-let myList = document.querySelector('ul');
-// Variables holding fetched data and default target times
-let data, ej = targets.ej.default, lbt = targets.lbt;
+document.querySelector('h1').textContent += ` (${today.getFullYear().toString().slice(2)}${today.getWeek()})`;
+console.log(today.getYear());
+
+//______________________________________________________________________________
+
+const durMinutes = val => Math.round(val / 60),
+	durHours = val => (val / 3600).toFixed(2),
+	getId = val => document.getElementById(val);
+let myList = document.querySelector('ul'),
+	// Variables holding fetched data and default target times
+	ej = targets.ej.default, lbt = targets.lbt;
 fetch(
 	`https://reports.api.clockify.me/v1/workspaces/${creds.workspace}/reports/summary`, {
 	method: 'POST',
