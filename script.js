@@ -1,4 +1,4 @@
-import { creds, targets } from './creds.js'; // Credentials for the api 
+import { creds, targets } from './creds.js'; // Credentials for the api (not recommended; currently trying to implement .env or similar approach)
 
 /// Dates to pass on to the request (start and end as ISO strings):
 

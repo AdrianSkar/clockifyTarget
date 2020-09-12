@@ -13,7 +13,7 @@ The result is the calculation and output of current status for all projects and 
 
 ## Files and data
 
-_clockifyTargets.html_ will show the results, _script.js_ does the api call, calculations and outputs and _creds.js_ holds the API credentials, targets and output colors.
+_clockifyTargets.html_ will show the results, _script.js_ does the api call, calculations and outputs and _creds.js_ holds the API credentials (not recommended; currently trying to implement .env or similar approach), targets and output colors.
 
 Sample output:
 ![sample output](sampleOutput.png)
