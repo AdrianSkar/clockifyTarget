@@ -76,7 +76,7 @@ fetch(
 			if (lbtDur > 0) {// If there's record of lbt; calculate accordingly
 				return Math.round((ww - lbtDur) * targets[val].ratio);
 			}// If lbtDur surpasses workweek set to 0, otherwise load defaults
-			return (lbtDur >= ww) ? 0 : targets[val].default;
+			return (lbtDur >= ww) ? 0 : Math.round(ww * targets[val].ratio);
 		};
 		const mainTasks = {
 			w: taskTargets('w'),
