@@ -24,7 +24,6 @@ Date.prototype.getWeek = function () {//https://stackoverflow.com/questions/9045
 };
 
 document.querySelector('h1').textContent += ` (${today.getFullYear().toString().slice(2)}${today.getWeek()})`;
-console.log(today.getYear());
 
 //______________________________________________________________________________
 
@@ -61,7 +60,7 @@ fetch(
 		return response.json();
 	})
 	.then(function (data) {
-		// console.log('ok:', data);
+		console.log('ok:', data);
 
 		/// Redefine main target values according to defined ratios (creds.js) and to Lbt project if present
 
@@ -79,11 +78,14 @@ fetch(
 			}// If lbtDur surpasses workweek set to 0, otherwise load defaults
 			return (lbtDur >= ww) ? 0 : targets[val].default;
 		};
-		let w = taskTargets('w');
-		let pract = taskTargets('pract');
-		let lb = taskTargets('lb');
-		let p = taskTargets('p');
-		let eng = taskTargets('eng');
+		const mainTasks = {
+			w: taskTargets('w'),
+			pract: taskTargets('pract'),
+			lb: taskTargets('lb'),
+			p: taskTargets('p'),
+			eng: taskTargets('eng')
+		};
+		console.log(mainTasks.pract);
 
 		/// Return color depending on results:
 		const colorize = function (left, rec) {
@@ -137,7 +139,7 @@ fetch(
 				/// Output function 
 
 				const mainTask = function (task) {
-					const taskTime = targets[task.name].default,
+					const taskTime = mainTasks[task.name], //  "|| targets[task.name].default" removed: default is already assign on mainTasks
 						time = durMinutes(task.duration) || 0;
 					let tr = document.createElement('tr');
 
