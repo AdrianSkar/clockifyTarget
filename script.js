@@ -70,7 +70,7 @@ fetch(
 				lbtDur = durMinutes(val.duration); // Duration in mins of lbt project 
 			}
 		});
-		let ww = targets.workweek;
+		let ww = targets.workweek.default;
 
 		const taskTargets = function (val) {
 			if (lbtDur > 0) {// If there's record of lbt; calculate accordingly
@@ -85,7 +85,6 @@ fetch(
 			p: taskTargets('p'),
 			eng: taskTargets('eng')
 		};
-		console.log(mainTasks.pract);
 
 		/// Return color depending on results:
 		const colorize = function (left, rec) {
@@ -197,17 +196,19 @@ fetch(
 
 		/// Process total count
 
-		const total = durHours(data.totals[0].totalTime),
-			totalTar = targets.targetHours.default,
-			listItem = document.createElement('li'),
-			left = `<span id="totalLeft">${(totalTar - total).toFixed(2)}</span>`;
+		const targetHours = Math.round(ww / 60),
+			maxHours = Math.round(targetHours * targets.workweek.maxRatio),
+			total = durHours(data.totals[0].totalTime),
 
-		listItem.innerHTML += `Total hours: ${total} &#183; Target: ${totalTar}-${totalTar + 10} &#183; Left: ${left}`;
+			listItem = document.createElement('li'),
+			left = `<span id="totalLeft">${(targetHours - total).toFixed(2)}</span>`;
+
+		listItem.innerHTML += `Total hours: ${total} &#183; Target: ${targetHours}-${maxHours} &#183; Left: ${left}`;
 
 		myList.appendChild(listItem);
 
 		let totalLeft = document.getElementById('totalLeft');
-		totalLeft.style.color = colorize((totalTar - total), targets.targetHours.max);
+		totalLeft.style.color = colorize((targetHours - total), (maxHours - targetHours));
 
 		//__________________________________________________________________________
 
