@@ -70,7 +70,7 @@ fetch(
 				lbtDur = durMinutes(val.duration); // Duration in mins of lbt project 
 			}
 		});
-		let ww = targets.workweek.default;
+		let ww = targets.workweek.default, freelance;
 
 		const taskTargets = function (val) {
 			if (lbtDur > 0) {// If there's record of lbt; calculate accordingly
@@ -128,8 +128,11 @@ fetch(
 
 				lbTR.lastChild.style.color = colorize(calc, 0);
 			}
-			else {// Process main project tasks
+			else if (data.groupOne[value].name.includes('Freelance')) {// Process freelance projects as 'pract' next.
+				freelance = time;
+			}
 
+			else {// Process main project tasks
 				const tasks = data.groupOne[value].children;
 				let mainArr = ['pract', 'w', 'eng', 'p', 'lb'],
 					contentArr = [],
@@ -138,8 +141,11 @@ fetch(
 				/// Output function 
 
 				const mainTask = function (task) {
-					const taskTime = mainTasks[task.name], //  "|| targets[task.name].default" removed: default is already assign on mainTasks
-						time = durMinutes(task.duration) || 0;
+					const taskTime = mainTasks[task.name]; //  "|| targets[task.name].default" removed: default is already assign on mainTasks
+					let time = durMinutes(task.duration) || 0;
+					if (task === 'pract') {// Include freelance time to 'pract'
+						time += freelance;
+					}
 					let tr = document.createElement('tr');
 
 					calc = taskTime - time;
@@ -159,7 +165,6 @@ fetch(
 					toContent.content = tr;
 					contentArr.push(toContent);
 				};
-
 				/// Iterate over fetched main tasks and apply the output function
 
 				for (let task of tasks) { mainTask(task); }
