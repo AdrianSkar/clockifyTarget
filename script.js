@@ -60,7 +60,7 @@ fetch(
 		return response.json();
 	})
 	.then(function (data) {
-		console.log('ok:', data);
+		// console.log('ok:', data);
 
 		/// Redefine main target values according to defined ratios (creds.js) and to Lbt project if present
 
@@ -194,9 +194,9 @@ fetch(
 		}
 		//__________________________________________________________________________
 
-		/// Process total count
+		/// Process total count 
 
-		const targetHours = Math.round(ww / 60),
+		const targetHours = Math.round((ww + ej) / 60), //ej project is counted apart from main ones
 			maxHours = Math.round(targetHours * targets.workweek.maxRatio),
 			total = durHours(data.totals[0].totalTime),
 
