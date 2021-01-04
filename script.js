@@ -17,12 +17,20 @@ const today = new Date(),
 	end = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59, 999)).toISOString(); // Today, 23:59:59 (UTC/ISO)
 
 /// Add week number to page title
+// https://weeknumber.net/how-to/javascript
 
-Date.prototype.getWeek = function () {//https://stackoverflow.com/questions/9045868/javascript-date-getweek
-	let oneJan = new Date(this.getFullYear(), 0, 1);
-	return Math.ceil((((this - oneJan) / 86400000) + oneJan.getDay() - 1) / 7);
+Date.prototype.getWeek = function () {
+	var date = new Date(this.getTime());
+	date.setHours(0, 0, 0, 0);
+	// Thursday in current week decides the year.
+	date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+	// January 4 is always in week 1.
+	var week1 = new Date(date.getFullYear(), 0, 4);
+	// Adjust to Thursday in week 1 and count number of weeks from date to week1.
+	const result = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+		- 3 + (week1.getDay() + 6) % 7) / 7);
+	return result.toString().padStart(2, '0');
 };
-
 document.querySelector('h1').textContent += ` (${today.getFullYear().toString().slice(2)}${today.getWeek()})`;
 
 //______________________________________________________________________________
