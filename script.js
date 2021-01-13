@@ -102,8 +102,7 @@ fetch(
 			return (recLeft >= 0) ? ((left >= 0) ? targets.pendingColor : targets.recoveryColor) : targets.doneColor;
 		};
 
-
-		//______________________________________________________________________________
+		//__________________________________________________________________________
 
 		/// Calculate % done
 		let percentageDone = (taskName, time, taskTime) => {
@@ -114,9 +113,7 @@ fetch(
 			return value > 0 ? value > 100 ? 100 : value : 0;
 		};
 
-		//______________________________________________________________________________
-
-
+		//__________________________________________________________________________
 
 
 		/// Loop through projects
@@ -191,10 +188,8 @@ fetch(
 				let mainArr = ['pract', 'w', 'eng', 'p', 'lb'],
 					contentArr = [],
 					table = document.getElementById('table');
-				// let perDone = Math.round((time * 100) / (taskTime + targets[task.name].recovery));
 
 				/// Output function 
-
 
 				const mainTask = function (task) {
 					const taskTime = mainTasks[task.name]; //  "|| targets[task.name].default" removed: default is already assign on mainTasks
@@ -206,9 +201,9 @@ fetch(
 
 					calc = taskTime - time;
 					content = [task.name, `${time}`, `${taskTime}`, `${calc}`];
-					tr.className = `named bars ${task.name}`;
 
 					// progress bar
+					tr.className = `named bars ${task.name}`;
 					style.innerHTML += `
 					.${task.name}::after {
 						width: ${percentageDone(task.name, time, taskTime)}% !important;
@@ -216,7 +211,7 @@ fetch(
 					}
 					`;
 					document.head.appendChild(style);
-					//______________________________________________________________________
+					//____________________________________________________________________
 
 					tr.setAttribute('title', `target + recovery: ${taskTime + targets[task.name].recovery}`);
 
@@ -290,7 +285,7 @@ fetch(
 	.catch(function (error) {
 		let p = document.createElement('p');
 		p.appendChild(
-			document.createTextNode('Error: ' + error.message)
+			document.createTextNode('Error: ' + error.message + 'stack: ' + error.stack)
 		);
 		document.body.insertBefore(p, myList);
 	});
