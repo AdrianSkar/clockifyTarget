@@ -37,3 +37,22 @@ td:not(.named :first-child) {
 .named :first-child {
 	text-align: left;
 }
+
+/* Progress bars */
+
+.named {
+	position: relative;
+	z-index: -1
+}
+
+.bars::after {
+	content: '';
+	display: inline-block;
+	/* background: orange;
+	width: 50%; */
+	height: 2px;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	z-index: 1;
+}

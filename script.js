@@ -40,7 +40,8 @@ const durMinutes = val => Math.round(val / 60),
 	getId = val => document.getElementById(val);
 let myList = document.querySelector('ul'),
 	// Variables holding fetched data and default target times
-	ej = targets.ej.default, lbt = targets.lbt;
+	ej = targets.ej.default, lbt = targets.lbt,
+	style = document.getElementsByTagName('style')[0];
 fetch(
 	`https://reports.api.clockify.me/v1/workspaces/${creds.workspace}/reports/summary`, {
 	method: 'POST',
@@ -101,6 +102,23 @@ fetch(
 			return (recLeft >= 0) ? ((left >= 0) ? targets.pendingColor : targets.recoveryColor) : targets.doneColor;
 		};
 
+
+		//______________________________________________________________________________
+
+		/// Calculate % done
+		let percentageDone = (taskName, time, taskTime) => {
+			let value = Math.round((time * 100) / (taskTime + targets[taskName].recovery));
+			if ((taskTime + targets[taskName].recovery) < 0) {
+				return 100;
+			}
+			return value > 0 ? value > 100 ? 100 : value : 0;
+		};
+
+		//______________________________________________________________________________
+
+
+
+
 		/// Loop through projects
 		for (const value in data.groupOne) {
 			let calc, content,
@@ -108,10 +126,9 @@ fetch(
 				duration = data.groupOne[value].duration,
 				time = durMinutes(duration);
 
-			if (data.groupOne[value].name.includes('Ej')) {// Process Ej project
+			if (data.groupOne[value].name.includes('Ej')) {//* Process Ej project
 				const ejTR = getId('ej');
 				calc = ej - time;
-
 				content = [`${time}`, `${ej}\'`, `${calc}`];
 				for (let i = 0, y = content.length, td; i < y; i++) {// Append content as td elements
 					td = document.createElement('td');
@@ -120,10 +137,20 @@ fetch(
 				}
 				ejTR.appendChild(frag);
 				ejTR.setAttribute('title', `target + recovery: ${ej + targets.ej.recovery}`);
-
 				ejTR.lastChild.style.color = colorize(calc, targets.ej.recovery);
+
+				// progress bar
+				ejTR.className = "named bars";
+				style.innerHTML += `
+				#ej::after {
+					width: ${percentageDone('ej', time, ej)}% !important;
+					background-color: ${colorize(calc, targets.ej.recovery)};
+				}
+				`;
+				document.head.appendChild(style);
+				//______________________________________________________________________
 			}
-			else if (data.groupOne[value].name.includes('Lb')) {// Process Lbt project
+			else if (data.groupOne[value].name.includes('Lb')) {//* Process Lbt project
 				const lbTR = getId('lbt');
 				calc = lbt - time;
 
@@ -136,18 +163,38 @@ fetch(
 				lbTR.appendChild(frag);
 
 				lbTR.lastChild.style.color = colorize(calc, 0);
+
+				// progress bar
+				let percentageLBT = (time, taskTime) => { // redefined because lbt doesn't require recovery
+					let value = Math.round((time * 100) / taskTime);
+					return value > 0 ? value > 100 ? 100 : value : 0;
+				};
+
+				lbTR.className = "named bars";
+				style.innerHTML += `
+								#lbt::after {
+									width: ${percentageLBT(time, lbt)}% !important;
+									background-color: ${colorize(calc, 0)};
+								}
+								`;
+				document.head.appendChild(style);
+				//______________________________________________________________________
+
 			}
 			else if (data.groupOne[value].name.includes('Freelance')) {// Process freelance projects as 'pract' next.
 				freelance = time;
+
 			}
 
-			else {// Process main project tasks
+			else {//* Process main project tasks
 				const tasks = data.groupOne[value].children;
 				let mainArr = ['pract', 'w', 'eng', 'p', 'lb'],
 					contentArr = [],
 					table = document.getElementById('table');
+				// let perDone = Math.round((time * 100) / (taskTime + targets[task.name].recovery));
 
 				/// Output function 
+
 
 				const mainTask = function (task) {
 					const taskTime = mainTasks[task.name]; //  "|| targets[task.name].default" removed: default is already assign on mainTasks
@@ -159,7 +206,18 @@ fetch(
 
 					calc = taskTime - time;
 					content = [task.name, `${time}`, `${taskTime}`, `${calc}`];
-					tr.className = "named";
+					tr.className = `named bars ${task.name}`;
+
+					// progress bar
+					style.innerHTML += `
+					.${task.name}::after {
+						width: ${percentageDone(task.name, time, taskTime)}% !important;
+						background-color: ${colorize(calc, targets[task.name].recovery)};
+					}
+					`;
+					document.head.appendChild(style);
+					//______________________________________________________________________
+
 					tr.setAttribute('title', `target + recovery: ${taskTime + targets[task.name].recovery}`);
 
 					for (let i = 0, y = content.length, td; i < y; i++) {
@@ -205,8 +263,10 @@ fetch(
 				table.appendChild(frag);
 
 			}
+
 		}
 		//__________________________________________________________________________
+
 
 		/// Process total count 
 
