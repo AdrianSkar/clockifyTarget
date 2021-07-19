@@ -195,7 +195,7 @@ fetch(
 					const taskTime = mainTasks[task.name]; //  "|| targets[task.name].default" removed: default is already assign on mainTasks
 					let time = durMinutes(task.duration) || 0;
 					if (task.name === 'pract') {// Include freelance time to 'pract'
-						time += freelance;
+						time += freelance ? freelance : 0;
 					}
 					let tr = document.createElement('tr');
 
