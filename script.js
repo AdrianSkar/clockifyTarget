@@ -133,13 +133,19 @@ fetch(
 
 		/// Calculate % done
 		let percentageDone = (taskName, time, taskTime) => {
-			let value = Math.round(
-				(time * 100) / (taskTime + targets[taskName].recovery)
-			);
-			if (taskTime + targets[taskName].recovery < 0) {
+			// Calculate progress if entry exits on `targets`
+			if (targets[taskName]) {
+				let value = Math.round(
+					(time * 100) / (taskTime + targets[taskName].recovery)
+				);
+				if (taskTime + targets[taskName].recovery < 0) {
+					return 100;
+				}
+				return value > 0 ? (value > 100 ? 100 : value) : 0;
+			} else {
+				// Otherwise treat it as side project -> 100
 				return 100;
 			}
-			return value > 0 ? (value > 100 ? 100 : value) : 0;
 		};
 
 		//______________________________________________________________________________
@@ -213,6 +219,7 @@ fetch(
 				//______________________________________________________________________
 			} else if (data.groupOne[value].name.includes('side_pract')) {
 				// Process freelance/side projects related to pract as 'pract' next.
+				console.log('entry', data.groupOne[value]);
 				side_pract = time;
 			} else {
 				//* Process main project tasks
@@ -226,7 +233,8 @@ fetch(
 
 				const mainTask = function (task) {
 					const taskTime = mainTasks[task.name]; //  "|| targets[task.name].default" removed: default is already assign on mainTasks
-					let time = durMinutes(task.duration) || 0;
+					let time = durMinutes(task.duration) || 0,
+						recovery = targets[task.name] ? targets[task.name].recovery : 0;
 					if (task.name === 'pract') {
 						// Include freelance time to 'pract'
 						time += side_pract ? side_pract : 0;
@@ -241,26 +249,20 @@ fetch(
 					style.innerHTML += `
 					.${task.name}::after {
 						width: ${percentageDone(task.name, time, taskTime)}% !important;
-						background-color: ${colorize(calc, targets[task.name].recovery)};
+						background-color: ${colorize(calc, recovery)};
 					}
 					`;
 					document.head.appendChild(style);
 					//______________________________________________________________________
 
-					tr.setAttribute(
-						'title',
-						`target + recovery: ${taskTime + targets[task.name].recovery}`
-					);
+					tr.setAttribute('title', `target + recovery: ${taskTime + recovery}`);
 
 					for (let i = 0, y = content.length, td; i < y; i++) {
 						td = document.createElement('td');
 						td.innerHTML = content[i];
 						tr.appendChild(td);
 					}
-					tr.lastChild.style.color = colorize(
-						calc,
-						targets[task.name].recovery
-					);
+					tr.lastChild.style.color = colorize(calc, recovery);
 
 					let toContent = {};
 					toContent.name = task.name;
@@ -325,5 +327,6 @@ fetch(
 	.catch(function (error) {
 		let p = document.createElement('p');
 		p.appendChild(document.createTextNode('Error: ' + error.message));
+		console.error(error);
 		document.body.insertBefore(p, myList);
 	});
