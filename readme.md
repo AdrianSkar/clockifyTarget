@@ -8,7 +8,7 @@ The purpose of this repo is to create a page giving real-time feedback on projec
 
 ## Targets vs time-tracked
 
-All this script does is to fetch the data using Clockify's API from current's week projects and compare the time tracked with current targets (task targets on the _Main_ project depend on the amount of time tracked on another project, which has a higher priority).
+All this script does is to fetch the data using Clockify's API from current's week projects and compare the time tracked with current targets (task targets on the _Main_ project depend on the amount of time tracked on other projects that have a higher priority).
 The result is the calculation and output of current status for all projects and tasks (target achieved/not achieved and ETA).
 
 ## Files and data
@@ -19,5 +19,5 @@ Sample output:
 ![sample output](sampleOutput.png)
 
 _Refs_:
- - [Clockify API documentation](https://clockify.me/developers-apihttps://clockify.me/developers-api)
 
+- [Clockify API documentation](https://clockify.me/developers-apihttps://clockify.me/developers-api)

@@ -91,25 +91,24 @@ fetch(
 	.then(function (data) {
 		// console.log('ok:', data);
 
-		/// Redefine main target values according to defined ratios (creds.js) and to Lbt project if present
-
-		let lbtDur;
+		/// Redefine main target values according to defined ratios (creds.js)
+		//  and to Lbt/side_main projects if present
+		let mainTime = 0;
 		for (let entry of data.groupOne) {
-			if (entry.name.includes('Lb')) {
-				lbtDur = durMinutes(entry.duration); // Duration in mins of lbt project
+			if (entry.name.includes('Lb') || entry.name.includes('side_main')) {
+				mainTime += durMinutes(entry.duration); // Duration in mins of lbt project
 			}
-			break;
 		}
+
 		let ww = targets.workweek.default,
-			side,
 			side_pract;
 
 		const taskTargets = function (val) {
-			if (lbtDur > 0) {
+			if (mainTime > 0) {
 				// If there's record of lbt; calculate accordingly
-				return Math.round((ww - lbtDur) * targets[val].ratio);
-			} // If lbtDur surpasses workweek set to 0, otherwise load defaults
-			return lbtDur >= ww ? 0 : Math.round(ww * targets[val].ratio);
+				return Math.round((ww - mainTime) * targets[val].ratio);
+			} // If mainTime surpasses workweek set to 0, otherwise load defaults
+			return mainTime >= ww ? 0 : Math.round(ww * targets[val].ratio);
 		};
 		const mainTasks = {
 			w: taskTargets('w'),
@@ -148,7 +147,7 @@ fetch(
 			}
 		};
 
-		//______________________________________________________________________________
+		//__________________________________________________________________________
 
 		/// Loop through projects
 		for (const value in data.groupOne) {
@@ -158,11 +157,12 @@ fetch(
 				duration = data.groupOne[value].duration,
 				time = durMinutes(duration);
 
+			// Ej_____________________________________________________________________
 			if (data.groupOne[value].name.includes('Ej')) {
 				//* Process Ej project
 				const ejTR = getId('ej');
 				calc = ej - time;
-				content = [`${time}`, `${ej}\'`, `${calc}`];
+				content = [`${time}`, `${ej}'`, `${calc}`];
 				for (let i = 0, y = content.length, td; i < y; i++) {
 					// Append content as td elements
 					td = document.createElement('td');
@@ -185,13 +185,14 @@ fetch(
 				}
 				`;
 				document.head.appendChild(style);
-				//______________________________________________________________________
-			} else if (data.groupOne[value].name.includes('Lb')) {
+			}
+			// Lb_____________________________________________________________________
+			else if (data.groupOne[value].name.includes('Lb')) {
 				//* Process Lbt project
 				const lbTR = getId('lbt');
 				calc = lbt - time;
 
-				content = [`${time}`, `${lbt}\'`, `${calc}`];
+				content = [`${time}`, `${lbt}'`, `${calc}`];
 				for (let x = 0, y = content.length, td; x < y; x++) {
 					td = document.createElement('td');
 					td.innerHTML = content[x];
@@ -216,12 +217,36 @@ fetch(
 								}
 								`;
 				document.head.appendChild(style);
-				//______________________________________________________________________
-			} else if (data.groupOne[value].name.includes('side_pract')) {
+			}
+			// Side_main______________________________________________________________
+			else if (data.groupOne[value].name.includes('side_main')) {
+				// Process freelance/side projects that count as main time (total hs/recovery calc).
+
+				// tr titles:
+				let trTitles = document.createElement('tr'),
+					trTh = document.createElement('th');
+				trTh.textContent = 'Side main tasks';
+				trTitles.append(trTh);
+				// tr content:
+				let trContent = document.createElement('tr');
+				trContent.setAttribute('id', 'side_main');
+				trContent.setAttribute('class', 'named');
+				let td = document.createElement('td');
+				td.innerHTML = `${time}`;
+				trContent.append(td);
+
+				// Put them before Lb tasks:
+				document.querySelector('#table tbody').prepend(trTitles, trContent);
+			}
+			// Side_pract_____________________________________________________________
+			else if (data.groupOne[value].name.includes('side_pract')) {
 				// Process freelance/side projects related to pract as 'pract' next.
-				console.log('entry', data.groupOne[value]);
+				console.log('entry_main', data.groupOne[value]);
 				side_pract = time;
-			} else {
+			}
+
+			// Rest___________________________________________________________________
+			else {
 				//* Process main project tasks
 				const tasks = data.groupOne[value].children;
 				let mainArr = ['pract', 'w', 'eng', 'p', 'lb'],
