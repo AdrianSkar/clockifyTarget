@@ -219,13 +219,13 @@ fetch(
 				document.head.appendChild(style);
 			}
 			// Side_main______________________________________________________________
-			else if (data.groupOne[value].name.includes('side_main')) {
+			else if (data.groupOne[value].name.includes('side_main')) { // Project name
 				// Process freelance/side projects that count as main time (total hs/recovery calc).
-
 				// tr titles:
 				let trTitles = document.createElement('tr'),
-					trTh = document.createElement('th');
-				trTh.textContent = 'Side main tasks';
+					trTh = document.createElement('th'),
+					clientName = (data.groupOne[value].clientName).replace(' (side_main)', '');
+				trTh.textContent = clientName;
 				trTitles.append(trTh);
 				// tr content:
 				let trContent = document.createElement('tr');
