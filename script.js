@@ -64,6 +64,8 @@ let myList = document.querySelector('ul'),
 	ej = targets.ej.default,
 	lbt = targets.lbt,
 	style = document.getElementsByTagName('style')[0];
+
+// Get data from Clockify for our time range
 fetch(
 	`https://reports.api.clockify.me/v1/workspaces/${creds.workspace}/reports/summary`,
 	{
@@ -89,14 +91,12 @@ fetch(
 		return response.json();
 	})
 	.then(function (data) {
-		// console.log('ok:', data);
-
 		/// Redefine main target values according to defined ratios (creds.js)
-		//  and to Lbt/side_main projects if present
+		//  and to Lbt/main projects if present.
 		let mainTime = 0;
 		for (let entry of data.groupOne) {
-			if (entry.name.includes('Lb') || entry.name.includes('side_main')) {
-				mainTime += durMinutes(entry.duration); // Duration in mins of lbt project
+			if (entry.clientName.includes('main')) {
+				mainTime += durMinutes(entry.duration);
 			}
 		}
 
@@ -105,7 +105,7 @@ fetch(
 
 		const taskTargets = function (val) {
 			if (mainTime > 0) {
-				// If there's record of lbt; calculate accordingly
+				// If there's record of main tasks; calculate accordingly
 				return Math.round((ww - mainTime) * targets[val].ratio);
 			} // If mainTime surpasses workweek set to 0, otherwise load defaults
 			return mainTime >= ww ? 0 : Math.round(ww * targets[val].ratio);
@@ -154,12 +154,11 @@ fetch(
 			let calc,
 				content,
 				frag = document.createDocumentFragment(),
-				duration = data.groupOne[value].duration,
-				time = durMinutes(duration);
-
+				project = data.groupOne[value],
+				time = durMinutes(project.duration);
 			// Ej_____________________________________________________________________
-			if (data.groupOne[value].name.includes('Ej')) {
-				//* Process Ej project
+			if (project.name.includes('Ej')) {
+				// Process Ej project
 				const ejTR = getId('ej');
 				calc = ej - time;
 				content = [`${time}`, `${ej}'`, `${calc}`];
@@ -187,7 +186,7 @@ fetch(
 				document.head.appendChild(style);
 			}
 			// Lb_____________________________________________________________________
-			else if (data.groupOne[value].name.includes('Lb')) {
+			else if (project.clientName.includes('Lb')) {
 				//* Process Lbt project
 				const lbTR = getId('lbt');
 				calc = lbt - time;
@@ -219,17 +218,17 @@ fetch(
 				document.head.appendChild(style);
 			}
 			// Side_main______________________________________________________________
-			else if (data.groupOne[value].name.includes('side_main')) { // Project name
-				// Process freelance/side projects that count as main time (total hs/recovery calc).
+			else if (project.clientName.includes('main')) {
+				//* Process freelance/side projects that count as main time (total hs/recovery calc).
 				// tr titles:
 				let trTitles = document.createElement('tr'),
 					trTh = document.createElement('th'),
-					clientName = (data.groupOne[value].clientName).replace(' (side_main)', '');
+					clientName = project.clientName.replace(' (main)', '');
 				trTh.textContent = clientName;
 				trTitles.append(trTh);
 				// tr content:
 				let trContent = document.createElement('tr');
-				trContent.setAttribute('id', 'side_main');
+				trContent.setAttribute('id', clientName);
 				trContent.setAttribute('class', 'named');
 				let td = document.createElement('td');
 				td.innerHTML = `${time}`;
@@ -239,10 +238,9 @@ fetch(
 				document.querySelector('#table tbody').prepend(trTitles, trContent);
 			}
 			// Side_pract_____________________________________________________________
-			else if (data.groupOne[value].name.includes('side_pract')) {
-				// Process freelance/side projects related to pract as 'pract' next.
-				console.log('entry_main', data.groupOne[value]);
-				side_pract = time;
+			else if (project.clientName.includes('pract')) {
+				//* Process freelance/side projects related to pract as 'pract' next.
+				side_pract += time;
 			}
 
 			// Rest___________________________________________________________________
@@ -257,11 +255,11 @@ fetch(
 				/// Output function
 
 				const mainTask = function (task) {
-					const taskTime = mainTasks[task.name]; //  "|| targets[task.name].default" removed: default is already assign on mainTasks
+					const taskTime = mainTasks[task.name];
 					let time = durMinutes(task.duration) || 0,
 						recovery = targets[task.name] ? targets[task.name].recovery : 0;
 					if (task.name === 'pract') {
-						// Include freelance time to 'pract'
+						// Include side_pract times into 'pract'
 						time += side_pract ? side_pract : 0;
 					}
 					let tr = document.createElement('tr');
