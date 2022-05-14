@@ -179,7 +179,7 @@ fetch(
 				ejTR.className = 'named bars';
 				style.innerHTML += `
 				#ej::after {
-					width: ${percentageDone('ej', time, ej)}% !important;
+					width: ${percentageDone('ej', time, ej)}%;
 					background-color: ${colorize(calc, targets.ej.recovery)};
 				}
 				`;
@@ -211,7 +211,7 @@ fetch(
 				lbTR.className = 'named bars';
 				style.innerHTML += `
 								#lbt::after {
-									width: ${percentageLBT(time, lbt)}% !important;
+									width: ${percentageLBT(time, lbt)}%;
 									background-color: ${colorize(calc, 0)};
 								}
 								`;
@@ -271,7 +271,7 @@ fetch(
 					// progress bar
 					style.innerHTML += `
 					.${task.name}::after {
-						width: ${percentageDone(task.name, time, taskTime)}% !important;
+						width: ${percentageDone(task.name, time, taskTime)}%;
 						background-color: ${colorize(calc, recovery)};
 					}
 					`;
