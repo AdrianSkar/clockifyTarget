@@ -101,7 +101,8 @@ fetch(
 		}
 
 		let ww = targets.workweek.default,
-			side_pract;
+			side_pract,
+			side_main = 0;
 
 		const taskTargets = function (val) {
 			if (mainTime > 0) {
@@ -220,22 +221,36 @@ fetch(
 			// Side_main______________________________________________________________
 			else if (project.clientName.includes('main')) {
 				//* Process freelance/side projects that count as main time (total hs/recovery calc).
-				// tr titles:
-				let trTitles = document.createElement('tr'),
-					trTh = document.createElement('th'),
-					clientName = project.clientName.replace(' (main)', '');
-				trTh.textContent = clientName;
-				trTitles.append(trTh);
-				// tr content:
-				let trContent = document.createElement('tr');
-				trContent.setAttribute('id', clientName);
-				trContent.setAttribute('class', 'named');
-				let td = document.createElement('td');
-				td.innerHTML = `${time}`;
-				trContent.append(td);
+				side_main += time;
 
-				// Put them before Lb tasks:
-				document.querySelector('#table tbody').prepend(trTitles, trContent);
+				// Create side_main TR
+				let createTContent = id => {
+					// Titles
+					let trTitles = document.createElement('tr'),
+						trTh = document.createElement('th');
+					trTh.textContent = 'Side main';
+					trTitles.append(trTh);
+
+					// Content:
+					let trContent = document.createElement('tr');
+					trContent.setAttribute('class', 'named side-content');
+					trContent.setAttribute('id', 'side_main');
+					let td = document.createElement('td');
+					td.innerHTML = `${side_main}`;
+					trContent.append(td);
+
+					let content = new DocumentFragment();
+					content.append(trTitles, trContent);
+					document.querySelector('#table tbody').prepend(content);
+
+					return content;
+				};
+
+				if (getId('side_main')) {
+					getId('side_main').firstChild.textContent = `${side_main}`;
+				} else {
+					createTContent('side_main');
+				}
 			}
 			// Side_pract_____________________________________________________________
 			else if (project.clientName.includes('pract')) {
