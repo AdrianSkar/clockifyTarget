@@ -62,7 +62,6 @@ const durMinutes = val => Math.round(val / 60),
 let myList = document.querySelector('ul'),
 	// Variables holding fetched data and default target times
 	ej = targets.ej.default,
-	lbt = targets.lbt,
 	style = document.getElementsByTagName('style')[0];
 
 // Get data from Clockify for our time range
@@ -100,9 +99,11 @@ fetch(
 			}
 		}
 
+		// Vars outside loops
 		let ww = targets.workweek.default,
 			side_pract,
-			side_main = 0;
+			total_main = 0,
+			lb_main = 0;
 
 		const taskTargets = function (val) {
 			if (mainTime > 0) {
@@ -114,7 +115,6 @@ fetch(
 		const mainTasks = {
 			w: taskTargets('w'),
 			pract: taskTargets('pract'),
-			lb: taskTargets('lb'),
 			p: taskTargets('p'),
 			eng: taskTargets('eng'),
 		};
@@ -124,9 +124,9 @@ fetch(
 			let recLeft = left + rec;
 			return recLeft >= 0
 				? left >= 0
-					? targets.pendingColor
-					: targets.recoveryColor
-				: targets.doneColor;
+					? 'var(--pending-color)'
+					: 'var(--recovery-color)'
+				: 'var(--done-color)';
 		};
 
 		//______________________________________________________________________________
@@ -162,7 +162,7 @@ fetch(
 				// Process Ej project
 				const ejTR = getId('ej');
 				calc = ej - time;
-				content = [`${time}`, `${ej}'`, `${calc}`];
+				content = [`${time}`, `${ej}`, `${calc}`];
 				for (let i = 0, y = content.length, td; i < y; i++) {
 					// Append content as td elements
 					td = document.createElement('td');
@@ -188,69 +188,14 @@ fetch(
 			}
 			// Lb_____________________________________________________________________
 			else if (project.clientName.includes('Lb')) {
-				//* Process Lbt project
-				const lbTR = getId('lbt');
-				calc = lbt - time;
-
-				content = [`${time}`, `${lbt}'`, `${calc}`];
-				for (let x = 0, y = content.length, td; x < y; x++) {
-					td = document.createElement('td');
-					td.innerHTML = content[x];
-					frag.appendChild(td);
-				}
-				lbTR.appendChild(frag);
-
-				lbTR.lastChild.style.color = colorize(calc, 0);
-
-				// progress bar
-				let percentageLBT = (time, taskTime) => {
-					// redefined because lbt doesn't require recovery
-					let value = Math.round((time * 100) / taskTime);
-					return value > 0 ? (value > 100 ? 100 : value) : 0;
-				};
-
-				lbTR.className = 'named bars';
-				style.innerHTML += `
-								#lbt::after {
-									width: ${percentageLBT(time, lbt)}%;
-									background-color: ${colorize(calc, 0)};
-								}
-								`;
-				document.head.appendChild(style);
+				// Just account for times and later use them on Main
+				total_main += time;
+				lb_main += time;
 			}
 			// Side_main______________________________________________________________
 			else if (project.clientName.includes('main')) {
 				//* Process freelance/side projects that count as main time (total hs/recovery calc).
-				side_main += time;
-
-				// Create side_main TR
-				let createTContent = id => {
-					// Titles
-					let trTitles = document.createElement('tr'),
-						trTh = document.createElement('th');
-					trTh.textContent = 'Side main';
-					trTitles.append(trTh);
-
-					// Content:
-					let trContent = document.createElement('tr');
-					trContent.setAttribute('class', 'named side-content');
-					trContent.setAttribute('id', 'side_main');
-					let td = document.createElement('td');
-					td.innerHTML = `${side_main}`;
-					trContent.append(td);
-
-					let content = new DocumentFragment();
-					content.append(trTitles, trContent);
-					document.querySelector('#table tbody').prepend(content);
-
-					return content;
-				};
-
-				if (getId('side_main')) {
-					getId('side_main').firstChild.textContent = `${side_main}`;
-				} else {
-					createTContent('side_main');
-				}
+				total_main += time;
 			}
 			// Side_pract_____________________________________________________________
 			else if (project.clientName.includes('pract')) {
@@ -262,7 +207,7 @@ fetch(
 			else {
 				//* Process main project tasks
 				const tasks = data.groupOne[value].children;
-				let mainArr = ['pract', 'w', 'eng', 'p', 'lb'],
+				let mainArr = ['pract', 'w', 'eng', 'p'],
 					contentArr = [],
 					table = document.getElementById('table');
 				// let perDone = Math.round((time * 100) / (taskTime + targets[task.name].recovery));
@@ -300,6 +245,7 @@ fetch(
 						td.innerHTML = content[i];
 						tr.appendChild(td);
 					}
+					// tr.lastChild.style.color = colorize(calc, recovery);
 					tr.lastChild.style.color = colorize(calc, recovery);
 
 					let toContent = {};
@@ -327,8 +273,12 @@ fetch(
 
 				/// Order output by ratio
 
-				contentArr = contentArr.sort((a, b) => {
-					return targets[b.name].ratio - targets[a.name].ratio;
+				contentArr.sort((a, b) => {
+					if (targets[a.name] && targets[b.name]) {
+						return targets[b.name].ratio - targets[a.name].ratio;
+					} else {
+						return a.name.localeCompare(b.name);
+					}
 				});
 
 				// Add it to document fragment
@@ -342,7 +292,32 @@ fetch(
 		}
 		//__________________________________________________________________________
 
-		/// Process total count
+		/// Process total main count
+
+		const mainTR = getId('main');
+
+		let mainContent = [
+				`${total_main}`,
+				`${lb_main}`,
+				`${targets.workweek.default - total_main}`,
+			],
+			fragMain = document.createDocumentFragment();
+		for (let x = 0, y = mainContent.length, td; x < y; x++) {
+			td = document.createElement('td');
+			td.innerHTML = mainContent[x];
+			fragMain.appendChild(td);
+		}
+		mainTR.appendChild(fragMain);
+
+		// Color Lb/T time for min hours
+		mainTR.children[1].style.color = colorize(targets.lbt - lb_main, 0);
+		// Color time left for all main entries
+		mainTR.lastChild.style.color = colorize(
+			targets.workweek.default - total_main,
+			0
+		);
+
+		//______________________________________________________________________________
 
 		const targetHours = Math.round((ww + ej) / 60), //ej project is counted apart from main ones
 			maxHours = Math.round(targetHours * targets.workweek.maxRatio),
